@@ -9,31 +9,15 @@ All Request headers to be implemented:
                       | If-Range                 ; Section 14.27
                       | If-Unmodified-Since      ; Section 14.28
                       | Range                    ; Section 14.35
-                      | User-Agent               ; Section 14.43
-                       |response-header = Accept-Ranges           ; Section 14.5
-                       | ETag                    ; Section 14.19
-                       | Location                ; Section 14.30
-                      # | Retry-After             ; Section 14.37
-                       | Server                  ; Section 14.38
-                    |entity-header  = Allow      ; Section 14.7
-                      | Content-Encoding         ; Section 14.11
-                      | Content-Language         ; Section 14.12
-                      | Content-Length           ; Section 14.13
-                      | Content-Location         ; Section 14.14
-                      | Content-MD5              ; Section 14.15
-                      | Content-Range            ; Section 14.16
-                      | Content-Type             ; Section 14.17
-                      | Expires                  ; Section 14.21
-                      | Last-Modified            ; Section 14.29
-                      General headers:
-                             general-header = 
-                      | Connection               ; Section 14.10
-                      | Date                     ; Section 14.18(TO be done)
-                      | Trailer                  ; Section 14.40
-                      | Transfer-Encoding        ; Section 14.41
-
-The
+                      | User-Agent               ; 
 '''
+                
+from datetime import datetime
+import os
+import gzip
+import brotli
+import deflate
+import mimetypes
 class request:
     #constructor 
     def __init__(self,http_request):
@@ -68,7 +52,7 @@ class request:
         for i in range(1,j):
             header_name = temp[i][:temp[i].find(':')]
             header_value = temp[i][temp[i].find(':')+1:]
-            self.request_headers[header_name]=header_value
+            self.request_headers[header_name+': ']=header_value
 
     #required in case of post,put
     def get_message_body(self):
@@ -106,30 +90,147 @@ class request:
     def range(self):
         return
 
-def error_in_get_request(request):
-    if(len(request.request_line.split(' '))!=3):
-        return 1
-    else if(len(request
-    
 def construct_get_response(request):
     #if(error_in_get_request(request)):
         #print("Error 400")
     #3. If the host as determined by rule 1 or 2 is not a valid host on the server, the response MUST be a 400 (Bad Request) error message.
     #if host header not present or host is n
     #elif(request_URI_has_proxy(request))#like get absolute uri 
-``  #elif(request.http_version!='HTTP/1.1'):
+    #elif(request.http_version!='HTTP/1.1'):
         #print("Error 505:HTTP VErsion Not supported")
     #if(request.request_URI.find('?')!=-1)::#if request_URI too long then throw error
         #wheIn post is converted forcefully to GEt then throw this error
     #else:
     #Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+    
+    response_headers={"Location: ":"","Etag: ":"","Server: ":"","Accept-ranges: ":""}
+    general_headers={"Date: ":"","Transfer-Encoding: ":"","Connection: ":""}
+    entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-MD5: ":"","Content-Language":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
 
-    status_code = "XXX"
-    status_line = 'HTTP/1.1' + status_code + response_phrase + '\r\n'
-    #Date: Tue, 15 Nov 1994 08:12:31 GMT(Date format:)
-    message_body = " "
-    response_message = status_line + response + message_body
+    status_code = '200'
+
+    #date header
+    time = datetime.now()
+    date = time.strftime("%A %d %B %Y %H:%M:%S")
+    date = date + " GMT"
+    general_headers['Date: '] = date
+
+    #server header
+    Server = 'http-server/1.2.4 (Ubuntu)'
+    response_headers['Server: '] = Server
+
+    response = ""
+
+    if(request.request_URI =='/'):
+        path = 'httpfiles/index.html'
+    else:
+        path = request.request_URI.split('/')
+        if len(path)==1:
+            path = 'httpfiles/'+ path[0]        #defaultlocation for server is httpfiles
+        else:
+            path = 'httpfiles'+request.request_URI
+    if(os.path.exists(path)):
+        pass
+    else:
+        status_code = '404'
+        response_phrase = 'Not Found'
+        fopen=open("httpfiles/error_404.html","rb")
+        response_body = fopen.read()
+        entity_headers['Content-Type: ']=mimetypes.guess_type("httpfiles/error_404.html")[0]
+        entity_headers['Content-Length: ']=str(len(response_body))
+
+    #if ("Accept: " in request.headers.keys()):
+    if ("Accept-Encoding: " in request.request_headers.keys() and status_code=='200'):
+        actual_types= request.request_headers['Accept-Encoding: ']
+        if(actual_types!=' '):
+            actual_types= actual_types.split(',')
+            encoding = {}
+        #content-negotiation algorithm(choose best type)
+            for x in actual_types:
+                if(x.find('q=')!=-1):
+                    encoding[x.split(';')[0].strip(' ')]=float(x.split(';')[1].strip('q='))
+                else:
+                    encoding[x.strip(' ')]=1.0
+            #find key with max  q value 
+            choosen_type = max(encoding, key=encoding.get)
+            if(encoding[choosen_type]==0.0):
+                choosen_type="None"
+        else:
+            choosen_type = 'identity'
+        #ref:https://docs.python.org/3/library/gzip.html
+        if choosen_type == 'gzip':
+            f_open=open(path,"rb")
+            response_body = f_open.read()
+            response_body = gzip.compress(response_body)
+        #ref:https://www.programcreek.com/python/example/103281/brotli.compress
+        elif choosen_type == 'br':
+            f_open=open(path,"rb")
+            response_body = f_open.read()
+            response_body = brotli.compress(response_body)
+        #ref:https://pypi.org/project/deflate/
+        elif choosen_type == 'deflate':
+            f_open=open(path,"rb")
+            response_body = f_open.read()
+            response_body = deflate.gzip_compress(response_body)
+        #elif choosen_type == 'compress':
+        elif choosen_type == 'identity':
+            f_open=open(path,"rb")
+            response_body = f_open.read()
+        #elif choosen_type == '*':
+
+        else:
+            status_code = '406'
+        #For content-type:https://docs.python.org/3/library/mimetypes.html
+        if(status_code !='406'):
+            entity_headers['Content-Encoding: '] = choosen_type
+            entity_headers['Content-Type: ']=mimetypes.guess_type(request.request_URI)[0]
+            entity_headers['Content-Length: ']=str(len(response_body))
+    elif(status_code=='200'):
+        ("Choose deflat,gzip or .....")
+        f_open=open(path,"rb")
+        response_body = f_open.read()
+        response_body = gzip.compress(response_body)
+        print("Else format")
+        entity_headers['Content-Encoding: '] = 'gzip'
+        entity_headers['Content-Type: ']=mimetypes.guess_type(request.request_URI)[0]
+        entity_headers['Content-Length: ']=str(len(response_body))
+
+    #if ("Accept-Charset: " in request.headers.keys() and status_code=='200'):
+    #if ("Range: " in request.headers.keys()and):
+    #if ("If-Match: " in request.headers.keys() and status_code =='200'):
+    #if ("If-Modified-Since: " in request.headers.keys() and status_code =='200'):
+    #if ("If-Range: " in request.headers.keys()and status_code =='200'):
+    #if ("If-Unmodified-Since: " in request.headers.keys() and status_code =='200'):
+
+    
+    #status_line = 'HTTP/1.1' + status_code + response_phrase + '\r\n'
+    if(status_code =='404'):
+        status_line = 'HTTP/1.1 ' + '404 Not Found' + '\r\n'
+        pass
+    else:
+        status_line = 'HTTP/1.1 ' + '200 OK' + '\r\n'
+    for key in response_headers.keys():
+        if(response_headers[key]!=''):
+            response +=key+response_headers[key]+'\r\n'
+        else:
+            continue
+    for key in general_headers.keys():
+        if(general_headers[key]!=''):
+            response +=key+general_headers[key]+'\r\n'
+        else:
+            continue
+    for key in entity_headers.keys():
+        if(entity_headers[key]!=''):
+            response +=key+entity_headers[key]+'\r\n'
+        else:
+            continue
+
+    response_message = status_line + response + '\r\n'
+    print(response_message)
+    response_message = response_message.encode()
+    response_message = response_message + response_body
     return response_message
+
 def construct_head_response(request):
     return
 def construct_delete_response(request):

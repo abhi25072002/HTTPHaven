@@ -4,7 +4,7 @@ from datetime import date
 from methods import *
 
 host = '127.0.0.1' # address for our server
-port = 12001 # port for our server
+port = int(sys.argv[1])# port for our server
 
 serverSocket = socket(AF_INET, SOCK_STREAM)
 
@@ -33,7 +33,8 @@ while True:
         continue
     #if request in given methods but we will be implementing so far 5 methods only then 
     if (client_request.request_method == 'GET'):
-        connectionSocket.send("Hello".encode())
+        connectionSocket.send(construct_get_response(client_request))
+        print("data")
     elif (client_request.request_method == 'HEAD'):
         continue
     elif (client_request.request_method == 'DELETE'):
