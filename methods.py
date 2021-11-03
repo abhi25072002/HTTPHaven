@@ -9,11 +9,16 @@ All Request headers to be implemented:
                       | If-Range                 ; Section 14.27
                       | If-Unmodified-Since      ; Section 14.28
                       | Range                    ; Section 14.35
-                      | User-Agent               ; 
+| User-Agent               ; 
+https://stackoverflow.com/questions/4533/http-generating-etag-header
+ETag:
+modTimesinceEpoc = os.path.getmtime(filePath)
+# Convert seconds since epoch to readable timestamp
+modificationTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(modTimesinceEpoc))
+print("Last Modified Time : ", modificationTime )
 '''
-                
 from datetime import datetime
-import os
+import os,subprocess
 import gzip
 import brotli
 import deflate
@@ -77,19 +82,6 @@ class request:
         print("MEthod :",self.request_method,"version:",self.http_version,"Request URI:",self.request_URI,"Requestline:",self.request_line+"fjjdf\n")
         return
 
-    def accept(self):
-        return
-    def accept_encoding(self):
-        return
-    def host(self):
-        return
-    def accept_charset(self):
-        return
-    def user_agent(self):
-        return
-    def range(self):
-        return
-
 def construct_get_response(request):
     #if(error_in_get_request(request)):
         #print("Error 400")
@@ -106,10 +98,26 @@ def construct_get_response(request):
     response_headers={"Location: ":"","Etag: ":"","Server: ":"","Accept-ranges: ":""}
     general_headers={"Date: ":"","Transfer-Encoding: ":"","Connection: ":""}
     entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-MD5: ":"","Content-Language":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
-
+    
     status_code = '200'
-
+    #Etag Header generation using shell script
+    os.chdir("httpfiles")
+    x=subprocess.check_output('for file in *; do printf "%x-%x-%x\t$file\n" `stat -c%i $file` `stat -c%s $file` $((`stat -c%Y $file`*1000000)) ; done',shell=True)
+    x=x.decode()
+    x=x.split('\n')
+    print(x)
+    i=0
+    etags={}
+    for line in x:
+        if(line == ''):
+            break
+        x[i]=x[i].split('\t')
+        etags[x[i][1]]=x[i][0]
+        i+=1
+    print(etags)
     #date header
+    print(os.system('pwd'))
+    os.chdir('..')
     time = datetime.now()
     date = time.strftime("%A %d %B %Y %H:%M:%S")
     date = date + " GMT"
@@ -123,12 +131,17 @@ def construct_get_response(request):
 
     if(request.request_URI =='/'):
         path = 'httpfiles/index.html'
+        entity_headers['Etag: ']=etags['index.html']
     else:
         path = request.request_URI.split('/')
-        if len(path)==1:
-            path = 'httpfiles/'+ path[0]        #defaultlocation for server is httpfiles
+        print(path)
+        if len(path)==2:
+            print("In right pasth")
+            entity_headers['Etag: ']=etags[path[1]]
+            path = 'httpfiles/'+ path[1]        #defaultlocation for server is httpfiles
         else:
             path = 'httpfiles'+request.request_URI
+            #find etag for nested path 
     if(os.path.exists(path)):
         pass
     else:
