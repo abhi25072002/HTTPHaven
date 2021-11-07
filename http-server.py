@@ -36,8 +36,10 @@ while True:
         connectionSocket.send(construct_get_response(client_request))
         print("data")
     elif (client_request.request_method == 'HEAD'):
-        continue
+        connectionSocket.send(construct_head_response(client_request))
+        print("Done")
     elif (client_request.request_method == 'DELETE'):
-        continue
+        connectionSocket.send(construct_delete_response(client_request))
+        print("done")
     #connectionSocket.sendall(data)
     #connectionSocket.close()

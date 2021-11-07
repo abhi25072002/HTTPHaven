@@ -1,16 +1,4 @@
 '''
-All Request headers to be implemented:
-                      | Accept                   ; Section 14.1
-                      | Accept-Charset           ; Section 14.2
-                      | Accept-Encoding          ; Section 14.3
-                      | Host                     ; Section 14.23
-                      | If-Match                 ; Section 14.24
-                      | If-Modified-Since        ; Section 14.25
-                      | If-Range                 ; Section 14.27
-                      | If-Unmodified-Since      ; Section 14.28
-                      | Range                    ; Section 14.35
-| User-Agent               ; 
-ETag:
 For abbrevated day name : %a for full day %A
 for abbrevayted month : %b for full n ame %B
 modTimesinceEpoc = os.path.getmtime(filePath)
@@ -23,7 +11,8 @@ import os
 import time
 import gzip
 import brotli
-import deflate
+import lzw3
+import zlib
 import mimetypes
 import hashlib
 
@@ -89,24 +78,23 @@ def response_body_for_206(path,range_start,range_end):
     response = read[int(range_start):int(range_end)+1]
     return response
 
-#response status code Handled in GET : 400,404,406,200,505,304,416,412,206
-def construct_get_response(request):
+def get_date():
+    time_1 = datetime.now()
+    date = time_1.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    return date
+
+#response status code Handled in GET : 301,400,404,406,200,505,304,416,412,206
+def construct_get_head_response(request,method):
 
     #all headers in seperate dictionary
     #accpet-ranges:bytes means server can send partial request  we can ssay that Accept-ranges:None
-    response_headers={"Location: ":"","Etag: ":"","Server: ":"","Accept-ranges: ":"bytes"}
+    response_headers={"Location: ":"","Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-ranges: ":"bytes"}
     general_headers={"Date: ":"","Transfer-Encoding: ":"","Connection: ":""}
     entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-MD5: ":"","Content-Language":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
     #assuming 200 status code initially
     status_code = '200'
     #date header
-    time_1 = datetime.now()
-    date = time_1.strftime("%a, %d %b %Y %H:%M:%S GMT")
-    general_headers['Date: '] = date
-
-    #server header
-    Server = 'http-server/1.2.4 (Ubuntu)'
-    response_headers['Server: '] = Server
+    general_headers['Date: '] = get_date()
 
     response = ""
 
@@ -143,7 +131,7 @@ def construct_get_response(request):
     else:
         status_code = '404'
         response_phrase = 'Not Found'
-        fopen=open("httpfiles/error_404.html","rb")
+        fopen=open("httpfiles/404.html","rb")
         response_body = fopen.read()
         entity_headers['Content-Type: ']=mimetypes.guess_type("httpfiles/error_404.html")[0]
         entity_headers['Content-Length: ']=str(len(response_body))
@@ -288,7 +276,9 @@ def construct_get_response(request):
                 response_body = brotli.compress(response_body)
             #ref:https://pypi.org/project/deflate/
             elif choosen_type == 'deflate':
-                response_body = deflate.gzip_compress(response_body)
+                response_body = zlib.compress(response_body)
+            elif choosen_type == 'compress':
+                response_body = lzw3.compress(response_body)
             elif choosen_type == 'identity':
                 pass
             else:
@@ -312,7 +302,9 @@ def construct_get_response(request):
                 elif choosen_type == 'br':
                     response_body = brotli.compress(response_body)
                 elif choosen_type == 'deflate':
-                    response_body = deflate.gzip_compress(response_body)
+                    response_body = zlib.compress(response_body)
+                elif choosen_type == 'compress':
+                    response_body = lzw3.compress(response_body)
                 elif choosen_type == 'identity':
                     pass
                 else:
@@ -336,7 +328,9 @@ def construct_get_response(request):
                     elif choosen_type == 'br':
                         response_1 = brotli.compress(response_1)
                     elif choosen_type == 'deflate':
-                        response_1 = deflate.gzip_compress(response_1)
+                        response_1 = zlib.compress(response_1)
+                    elif choosen_type == 'compress':
+                        response_body = lzw3.compress(response_1)
                     elif choosen_type == 'identity':
                         pass
                     else:
@@ -441,11 +435,84 @@ def construct_get_response(request):
     print(response_message)
 
     response_message = response_message.encode()
+    if(method=='HEAD'):
+        return response_message
     response_message = response_message + response_body
     return response_message
 
+def construct_get_response(request):
+    response_message = construct_get_head_response(request,'GET')
+    return response_message
+
 def construct_head_response(request):
-    response,repsonse_body = construct_get_response()
-    return
+    response_message= construct_get_head_response(request,'HEAD')
+    return response_message
+
+#link:https://stackoverflow.com/questions/17884469/what-is-the-http-response-code-for-failed-http-delete-operation
 def construct_delete_response(request):
-    return
+    response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)"}
+    general_headers={"Date: ":"","Connection: ":""}
+    entity_headers = {"Content-Type: ":"","Content-Length: ":""}
+
+    status_code ='200'
+    general_headers['Date: '] =get_date()
+    #statuscode will be 200,405(method not allowed),202,204,412,403
+    if('Host: ' not in request.request_headers.keys() or request.request_headers['Host: ']!='127.0.0.1'):
+        status_code = '400'
+
+    #check if requested URI exists or not
+    if(request.request_URI =='/'):
+        path = 'httpfiles/index.html'
+    else:
+        path = request.request_URI.split('/')
+        print(path)
+        if len(path)==2:#itha request_uri doesnot contain / asen tar error 400 dyaycha
+            print("In right path")
+            path = 'httpfiles/'+ path[1]        #defaultlocation for server is httpfiles
+        else:
+            path = 'httpfiles'+request.request_URI
+    if(os.path.exists(path) and status_code == '200'):
+        try:
+            print('in_write_thing')
+            os.remove(path)
+            status_code = '200'
+        except PermissionError:
+            status_code = '403'
+    elif(status_code == '200'):
+        status_code = '404'
+
+    if(status_code == '200'):
+        path1 = 'httpfiles/delete_200.html'
+    else:
+        path1 = 'httpfiles/'+status_code+'.html'
+
+    fopen = open(path1,"rb")
+    response_body = fopen.read()
+    fopen.close()
+    response_phrase = {'200':'OK','400':'Bad Request','404':'Not Found','403':'Forbidden'}
+    status_line = 'HTTP/1.1 '+status_code + ' ' + response_phrase[status_code] + '\r\n'
+    print(status_line)
+    entity_headers['Content-Type: ']=mimetypes.guess_type(path1)[0]
+    entity_headers['Content-Length: ']=str(len(response_body))
+    response = ''
+    for key in response_headers.keys():
+        if(response_headers[key]!=''):
+            response +=key+response_headers[key]+'\r\n'
+        else:
+            continue
+    for key in general_headers.keys():
+        if(general_headers[key]!=''):
+            response +=key+general_headers[key]+'\r\n'
+        else:
+            continue
+    for key in entity_headers.keys():
+        if(entity_headers[key]!=''):
+            print(type(entity_headers[key]),type(key),key,entity_headers[key])
+            response +=key+entity_headers[key]+'\r\n'
+        else:
+            continue
+    response_message = status_line + response + '\r\n'
+    print(response_message)
+    response_message = response_message.encode()
+    response_message+=response_body
+    return response_message
