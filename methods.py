@@ -17,7 +17,6 @@ import mimetypes
 import hashlib
 
 class request:
-    #constructor 
     def __init__(self,http_request):
         self.http_request = http_request
         return
@@ -50,7 +49,7 @@ class request:
             self.request_headers[header_name+': ']=header_value
 
     #required in case of post,put
-    def get_message_body(self):
+    def get_message_body(self,connectionSocket):
         j=0
         temp = self.http_request.split('\r\n')
         for i in range(len(temp)):
@@ -58,18 +57,31 @@ class request:
                 j=i
                 break
         self.message_body = temp[j+1:]
+        self.message_body = "\r\n".join(self.message_body)
+        self.message_body = self.message_body.encode()
+        print("_-------------len()",len(self.message_body))
+        contentlength = int(self.request_headers['Content-Length: '])
+        if(contentlength!=len(self.message_body)):
+            contentlength-=len(self.message_body)
+            while(contentlength):
+                data = connectionSocket.recv(1024)
+                l = len(data)
+                self.message_body+=data
+                contentlength-=l
         return 
 
     def print_http_request(self):
         print(self.http_request)
 
-    def parse_request(self):
+    def parse_request(self,connectionSocket):
         self.get_request_line()
         self.extract_request_headers()
+        self.get_message_body(connectionSocket)
         self.print_http_request()
         print("Printing now headers:")
         print(self.request_headers)
         print("MEthod :",self.request_method,"version:",self.http_version,"Request URI:",self.request_URI,"Requestline:",self.request_line+"fjjdf\n")
+        print(self.message_body)
         return
 
 def response_body_for_206(path,range_start,range_end):
@@ -89,7 +101,7 @@ def construct_get_head_response(request,method):
     #all headers in seperate dictionary
     #accpet-ranges:bytes means server can send partial request  we can ssay that Accept-ranges:None
     response_headers={"Location: ":"","Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-ranges: ":"bytes"}
-    general_headers={"Date: ":"","Transfer-Encoding: ":"","Connection: ":""}
+    general_headers={"Date: ":"","Transfer-Encoding: ":"","Connection: ":"Keep-Alive","Keep-Alive: ":"timeout=5, max=1000"}
     entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-MD5: ":"","Content-Language":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
     #assuming 200 status code initially
     status_code = '200'
@@ -516,3 +528,87 @@ def construct_delete_response(request):
     response_message = response_message.encode()
     response_message+=response_body
     return response_message
+
+def construct_post_response(request):
+    #400,403,405 method not allowed,301,302(moved permanently wala , 201 created wala 
+    #nntr headers baghychet konte hou shaktat 
+    contentlength = int(request.request_headers['Content-Length: '])
+    #if(len(request.message_body)!=content-length):
+        #content-length
+    response_headers={"Location: ":"","Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
+    general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
+    entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
+    status_code = '200'
+    request_body = request.message_body
+    content_type = request.request_headers['Content-Type: ']
+    if(content_type == 'application/x-www-form-urlencoded'):
+        fopen = open('httpfiles/POST/post.log','a')
+        request_body = request_body.decode()
+        print(request_body)
+        request_body = request_body.split('&')
+        length = len(request_body)
+        i=0
+        pair = '{'
+        for i in range(len(request_body)):
+            key = request_body[i].split('=')[0]
+            value = request_body[i].split('=')[1]
+            if(i==length-1):
+                pair += key+":'"+value+"'}"+'\n'
+            else:
+                pair += key+":'"+value+"', "
+            i+=1
+        fopen.write(pair)
+        fopen.close()
+    elif(content_type == 'text/plain'):
+        request_body = request_body.decode()
+        fopen = open('httpfiles/POST/index.txt','a')
+        fopen.write('{'+request_body+'}\n')
+        fopen.close()
+
+    elif(content_type == 'text/html'):
+        request_body = request_body.decode()
+        fopen = open('httpfiles/POST/index.html','a')
+        fopen.write(request_body+'\n')
+        fopen.close()
+
+    elif(content_type == 'application/javascript'):
+        request_body = request_body.decode()
+        fopen = open('httpfiles/POST/index.js','a')
+        fopen.write(request_body+'\n')
+        fopen.close()
+
+    elif(content_type == 'application/json'):
+        request_body = request_body.decode()
+        fopen = open('httpfiles/POST/index.json','a')
+        fopen.write(request_body+'\n')
+        fopen.close()
+
+    elif(content_type.find('multipart/form-data')!=-1):
+        content_type = content_type.split('; boundary=')
+        key_and_value=[]
+        i=0
+        for x in request_body:
+            if(x.find('Content-Disposition: form-data')!=-1):
+                key_and_value.append(i)
+            i+=1
+        length = len(key_and_value)
+        i=0
+        pair = '{'
+        for index in key_and_value:
+            key =request_body[index].strip('Content-Disposition: form-data; name=').strip('"')
+            value = request_body[index+2]
+            if(i==length-1):
+                pair += key+":'"+value+"'}"+'\n'
+            else:
+                pair += key+":'"+value+"', "
+            i+=1
+        fopen.write(pair)
+        fopen.close()
+    
+
+
+    return
+def construct_put_response(request):
+    return
+#Aaj put ,Post , Multihthreding part.Udyaparynt xzal phaij.
+#Mag logging,Cookies
