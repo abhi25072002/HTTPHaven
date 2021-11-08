@@ -18,7 +18,7 @@ clients={}
 def send_response(connectionSocket,address):
     clients[address[0]+':'+str(address[1])]=1
     message_request = connectionSocket.recv(100000)
-    print(message_request.decode())
+    #print(message_request.decode())
     #message_request = connectionSocket.recv(100000)
     #print(message_request.decode())
     client_request  = request(message_request.decode())

@@ -59,7 +59,7 @@ class request:
         self.message_body = temp[j+1:]
         self.message_body = "\r\n".join(self.message_body)
         self.message_body = self.message_body.encode()
-        print("_-------------len()",len(self.message_body))
+        #print("_-------------len()",len(self.message_body))
         contentlength = int(self.request_headers['Content-Length: '])
         if(contentlength!=len(self.message_body)):
             contentlength-=len(self.message_body)
@@ -584,19 +584,48 @@ def construct_post_response(request):
         fopen.close()
 
     elif(content_type.find('multipart/form-data')!=-1):
+        fopen=open('httpfiles/POST/post.log','a')
         content_type = content_type.split('; boundary=')
-        key_and_value=[]
+        boundary = content_type[1]
+        if(boundary.find('\r\n')!=-1):
+            print("ABHISHELK")
+        print(boundary)
+        #request_body=request_bod
+        request_body = request_body.split(b'\r\n')
+        request_body = [x for x in request_body if x.find(boundary.encode())==-1]
+        print(request_body)
         i=0
-        for x in request_body:
-            if(x.find('Content-Disposition: form-data')!=-1):
-                key_and_value.append(i)
-            i+=1
+        key_and_value = [i for i in range(len(request_body)) if request_body[i].find(b'Content-Disposition: form-data')!=-1]
+        print(key_and_value)
         length = len(key_and_value)
         i=0
         pair = '{'
         for index in key_and_value:
-            key =request_body[index].strip('Content-Disposition: form-data; name=').strip('"')
-            value = request_body[index+2]
+            key =request_body[index].strip(b'Content-Disposition: form-data; name=')
+            key = key.decode()
+            if(key.find('filename="')!=-1):
+                key_1 = key.split('; filename=')[0]
+                file_name =key.split('; filename=')[1]
+                file_name = file_name.strip("'").strip('"')
+                value = file_name
+                content_type = request_body[index+1]
+                print(content_type)
+                file_content = request_body[index+3]
+                #itha indx+3 pasun index+key_value[i+1] prynt pahij ani te \r\n la split karycha ka te bagh adhi
+                print('------------------>',len(request_body[index+3]),'-------------',len(request_body))
+                print(file_content)
+                if(content_type.find(b'text/')!=-1):
+                    file_upload = open("httpfiles/POST/uploaded_files/"+file_name,"w")#check for duplicacy.
+                    print(file_content)
+                    file_upload.write(file_content.decode())
+                    file_upload.close()
+                else:
+                    file_upload = open("httpfiles/POST/uploaded_files/"+file_name,"wb")#check for duplicacy.
+                    file_upload.write(file_content)
+                    file_upload.close()
+                key = key_1
+            else:
+                value = request_body[index+2].decode()
             if(i==length-1):
                 pair += key+":'"+value+"'}"+'\n'
             else:
@@ -604,9 +633,6 @@ def construct_post_response(request):
             i+=1
         fopen.write(pair)
         fopen.close()
-    
-
-
     return
 def construct_put_response(request):
     return
