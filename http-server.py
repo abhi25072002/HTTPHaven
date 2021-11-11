@@ -2,7 +2,7 @@ from socket import *
 import sys
 from datetime import date
 from methods import *
-from threading import Thread
+import threading
 host = '127.0.0.1' # address for our server
 try:
     port = int(sys.argv[1])# port for our server
@@ -15,12 +15,11 @@ serverSocket.bind((host, port))
 serverSocket.listen(2)
 
 clients={}
-def send_response(connectionSocket,address):
+def send_response_to_client(connectionSocket,address):
     clients[address[0]+':'+str(address[1])]=1
     message_request = connectionSocket.recv(100000)
     #print(message_request.decode())
     #message_request = connectionSocket.recv(100000)
-    #print(message_request.decode())
     client_request  = request(message_request.decode())
     client_request.parse_request(connectionSocket)
     if (client_request.request_method == 'GET'):
@@ -48,9 +47,12 @@ def send_response(connectionSocket,address):
         connectionSocket.send(response.encode())
     connectionSocket.close()
     return
-
 while True:
     connectionSocket, address = serverSocket.accept()
     print("Connected by", address)
-    send_response(connectionSocket,address)
+    th = threading.Thread(target=send_response_to_client, args=(connectionSocket,address,))
+    th.start()
+    print("Now threading count is :",threading.active_count())
+    if(threading.active_count()>3):
+        break
     print('Done;')

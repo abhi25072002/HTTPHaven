@@ -15,6 +15,7 @@ import lzw3
 import zlib
 import mimetypes
 import hashlib
+from functions import *
 
 class request:
     def __init__(self,http_request):
@@ -76,12 +77,18 @@ class request:
     def parse_request(self,connectionSocket):
         self.get_request_line()
         self.extract_request_headers()
-        self.get_message_body(connectionSocket)
+        if(self.request_method in ['PUT','POST']):
+            self.get_message_body(connectionSocket)
+        else:
+            self.message_body = ''
         self.print_http_request()
         print("Printing now headers:")
         print(self.request_headers)
-        print("MEthod :",self.request_method,"version:",self.http_version,"Request URI:",self.request_URI,"Requestline:",self.request_line+"fjjdf\n")
-        print(self.message_body)
+        try:
+            print("MEthod :",self.request_method,"version:",self.http_version,"Request URI:",self.request_URI,"Requestline:",self.request_line+"fjjdf\n")
+        except:
+            print("error")
+        #print(self.message_body)
         return
 
 def response_body_for_206(path,range_start,range_end):
@@ -299,7 +306,7 @@ def construct_get_head_response(request,method):
             #For content-type:https://docs.python.org/3/library/mimetypes.html
             if(status_code !='406'):
                 entity_headers['Content-Encoding: '] = choosen_type
-                entity_headers['Content-Type: ']=mimetypes.guess_type(path)[0]
+                entity_headers['Content-Type: ']=str(mimetypes.guess_type(path)[0])
                 entity_headers['Content-Length: ']=str(len(response_body))
         #if accept encoding is there and status code is 206
         #https://tools.ietf.org/id/draft-ietf-httpbis-p5-range-09.html
@@ -323,7 +330,7 @@ def construct_get_head_response(request,method):
                     status_code = '406'
                 if(status_code!='406'):
                     entity_headers['Content-Encoding: '] = choosen_type
-                    entity_headers['Content-Type: ']=mimetypes.guess_type(path)[0]
+                    entity_headers['Content-Type: ']=str(mimetypes.guess_type(path)[0])
                     #ref:https://stackoverflow.com/questions/3819280/content-length-when-using-http-compression
                     entity_headers['Content-Length: ']=str(len(response_body))
                     entity_headers['Content-Range: ']='bytes ' + range_start + '-' + range_end +'/' +str(file_size)
@@ -351,7 +358,7 @@ def construct_get_head_response(request,method):
                         print("U r 406")
                         break
                     partial_header = 'Content-Encoding: '+choosen_type+'\r\n'
-                    partial_header += 'Content-Type: '+mimetypes.guess_type(path)[0]+'\r\n'
+                    partial_header += 'Content-Type: '+str(mimetypes.guess_type(path)[0])+'\r\n'
                     partial_header +='Content-Range: '+'bytes ' + range_start + '-' + range_end +'/' +str(file_size) + '\r\n'
                     partial_header +='Content-Length: '+str(len(response_1))+'\r\n'
                     partial_body= boundary + partial_header
@@ -425,24 +432,7 @@ def construct_get_head_response(request,method):
     else:
         status_line = 'HTTP/1.1 ' + '200 OK' + '\r\n'
 
-    for key in response_headers.keys():
-        if(response_headers[key]!=''):
-            response +=key+response_headers[key]+'\r\n'
-        else:
-            continue
-    for key in general_headers.keys():
-        if(general_headers[key]!=''):
-            response +=key+general_headers[key]+'\r\n'
-        else:
-            continue
-    print(response)
-    for key in entity_headers.keys():
-        if(entity_headers[key]!=''):
-            print(type(entity_headers[key]),type(key),key,entity_headers[key])
-            response +=key+entity_headers[key]+'\r\n'
-        else:
-            continue
-
+    response = build_response_headers(response_headers,general_headers,entity_headers)
     response_message = status_line + response + '\r\n'
     print(response_message)
 
@@ -501,48 +491,42 @@ def construct_delete_response(request):
     fopen = open(path1,"rb")
     response_body = fopen.read()
     fopen.close()
-    response_phrase = {'200':'OK','400':'Bad Request','404':'Not Found','403':'Forbidden'}
     status_line = 'HTTP/1.1 '+status_code + ' ' + response_phrase[status_code] + '\r\n'
     print(status_line)
     entity_headers['Content-Type: ']=mimetypes.guess_type(path1)[0]
     entity_headers['Content-Length: ']=str(len(response_body))
     response = ''
-    for key in response_headers.keys():
-        if(response_headers[key]!=''):
-            response +=key+response_headers[key]+'\r\n'
-        else:
-            continue
-    for key in general_headers.keys():
-        if(general_headers[key]!=''):
-            response +=key+general_headers[key]+'\r\n'
-        else:
-            continue
-    for key in entity_headers.keys():
-        if(entity_headers[key]!=''):
-            print(type(entity_headers[key]),type(key),key,entity_headers[key])
-            response +=key+entity_headers[key]+'\r\n'
-        else:
-            continue
+    response = build_response_headers(response_headers,general_headers,entity_headers)
     response_message = status_line + response + '\r\n'
     print(response_message)
     response_message = response_message.encode()
     response_message+=response_body
     return response_message
 
+#if-unmodifed-since karne
 def construct_post_response(request):
     #400,403,405 method not allowed,301,302(moved permanently wala , 201 created wala 
     #nntr headers baghychet konte hou shaktat 
-    contentlength = int(request.request_headers['Content-Length: '])
-    #if(len(request.message_body)!=content-length):
-        #content-length
-    response_headers={"Location: ":"","Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
+    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
-    entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
+    entity_headers={"Allow: ":"","Content-Location: ":"","Expires: ":""}
     status_code = '200'
+    general_headers['Date: '] = get_date()
     request_body = request.message_body
     content_type = request.request_headers['Content-Type: ']
-    if(content_type == 'application/x-www-form-urlencoded'):
-        fopen = open('httpfiles/POST/post.log','a')
+    folder_name = request.request_URI
+    folder_path = 'POST'+folder_name
+    #u allow for 405 is method not allowed as folder is not there
+    #https://stackoverflow.com/questions/35083139/why-does-post-request-return-404
+    if(not os.path.isdir(folder_path)):
+        status_code = '404'
+    else:
+        status_code = '204'
+    if(content_type == 'application/x-www-form-urlencoded' and status_code!='404'):
+        if(not os.path.isfile(folder_path+'post.log')):
+            status_code = '201'
+            entity_headers['Content-Location: ']=folder_path+'post.log'
+        fopen = open(folder_path+'post.log','a')
         request_body = request_body.decode()
         print(request_body)
         request_body = request_body.split('&')
@@ -559,48 +543,52 @@ def construct_post_response(request):
             i+=1
         fopen.write(pair)
         fopen.close()
-    elif(content_type == 'text/plain'):
+    elif(content_type == 'text/plain'and status_code!='404'):
         request_body = request_body.decode()
-        fopen = open('httpfiles/POST/index.txt','a')
+        if(not os.path.isfile(folder_path+'index.txt')):
+            status_code = '201'
+            entity_headers['Content-Location: ']=folder_path+'index.txt'
+        fopen = open(folder_path+'index.txt','a')
         fopen.write('{'+request_body+'}\n')
         fopen.close()
 
-    elif(content_type == 'text/html'):
+    elif(content_type == 'text/html' and status_code!='404'):
         request_body = request_body.decode()
-        fopen = open('httpfiles/POST/index.html','a')
+        if(not os.path.isfile(folder_path+'index.html')):
+            status_code = '201'
+            entity_headers['Content-Location: ']=folder_path+'index.html'
+        fopen = open(folder_path+'index.html','a')
         fopen.write(request_body+'\n')
         fopen.close()
 
-    elif(content_type == 'application/javascript'):
+    elif(content_type == 'application/javascript' and status_code!='404'):
         request_body = request_body.decode()
-        fopen = open('httpfiles/POST/index.js','a')
+        if(not os.path.isfile(folder_path+'index.js')):
+            status_code = '201'
+            entity_headers['Content-Location: ']=folder_path+'index.js'
+        fopen = open(folder_path+'index.js','a')
         fopen.write(request_body+'\n')
         fopen.close()
 
-    elif(content_type == 'application/json'):
+    elif(content_type == 'application/json' and status_code!='404'):
         request_body = request_body.decode()
-        fopen = open('httpfiles/POST/index.json','a')
+        fopen = open(folder_path+'index.json','a')
         fopen.write(request_body+'\n')
         fopen.close()
 
-    elif(content_type.find('multipart/form-data')!=-1):
-        fopen=open('httpfiles/POST/post.log','a')
+    elif(content_type.find('multipart/form-data')!=-1 and status_code!='404'):
+        fopen=open(folder_path+'post.log','a')
         content_type = content_type.split('; boundary=')
         boundary = content_type[1]
-        if(boundary.find('\r\n')!=-1):
-            print("ABHISHELK")
-        print(boundary)
-        #request_body=request_bod
         request_body = request_body.split(b'\r\n')
         request_body = [x for x in request_body if x.find(boundary.encode())==-1]
-        print(request_body)
         i=0
         key_and_value = [i for i in range(len(request_body)) if request_body[i].find(b'Content-Disposition: form-data')!=-1]
-        print(key_and_value)
+        #print(key_and_value)
         length = len(key_and_value)
-        i=0
         pair = '{'
-        for index in key_and_value:
+        for i in range(len(key_and_value)):
+            index = key_and_value[i]
             key =request_body[index].strip(b'Content-Disposition: form-data; name=')
             key = key.decode()
             if(key.find('filename="')!=-1):
@@ -609,18 +597,23 @@ def construct_post_response(request):
                 file_name = file_name.strip("'").strip('"')
                 value = file_name
                 content_type = request_body[index+1]
-                print(content_type)
                 file_content = request_body[index+3]
-                #itha indx+3 pasun index+key_value[i+1] prynt pahij ani te \r\n la split karycha ka te bagh adhi
-                print('------------------>',len(request_body[index+3]),'-------------',len(request_body))
-                print(file_content)
+                if(i!=length-1):
+                    end_index = key_and_value[i+1]
+                else:
+                    end_index=len(request_body)-1
+                CRLF=b'\r\n'
+                file_content = CRLF.join(request_body[index+3:end_index])
+                #print(file_content)
+                if(not os.path.isfile(folder_path+file_name)):
+                    status_code = '201'
                 if(content_type.find(b'text/')!=-1):
-                    file_upload = open("httpfiles/POST/uploaded_files/"+file_name,"w")#check for duplicacy.
+                    file_upload = open(folder_path+file_name,"w")#check for duplicacy.
                     print(file_content)
                     file_upload.write(file_content.decode())
                     file_upload.close()
                 else:
-                    file_upload = open("httpfiles/POST/uploaded_files/"+file_name,"wb")#check for duplicacy.
+                    file_upload = open(folder_path+file_name,"wb")#check for duplicacy.
                     file_upload.write(file_content)
                     file_upload.close()
                 key = key_1
@@ -630,11 +623,67 @@ def construct_post_response(request):
                 pair += key+":'"+value+"'}"+'\n'
             else:
                 pair += key+":'"+value+"', "
-            i+=1
         fopen.write(pair)
         fopen.close()
-    return
+    elif(status_code!='404'):
+        status_code = '415'
+    #u may generate Etag 
+    response_phrase = {'201':'Content Created','204':'No Content','400':'Bad Request','404':'Not Found','415':'Unsupported Media Type','412':'Precondition Failed'}
+    status_line = 'HTTP/1.1 '+status_code + ' ' + response_phrase[status_code] + '\r\n'
+    response = ''
+    response = build_response_headers(response_headers,general_headers,entity_headers)
+    response_body = b''
+    response = status_line + response + '\r\n'
+    print(response)
+    response_message = response.encode()+response_body
+    return response_message
+#if match if modified all condtional headers yenare 
+#201,204,400 vgee tepan status codes yeten.
+#aaj saglya methods + logging suruwat zali pahij
+#link:https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests
+#conditonal headers : https://www.w3.org/1999/04/Editing/#3.1
 def construct_put_response(request):
+    #check if file have all permissions
+    #if file exists 
+    #now same as post 
+    #just here request URI plays very important role
+    #all conditional headers will be there1
+    #if ifle is read only then throw error of 405
+    file_name = request.request_URI
+    file_path = 'httpfiles'+file_name
+    status_code = '200'
+    if(os.path.exists(path) and status_code == '200'):
+        status_code = '204'
+    else:
+        status_code = '201'    
+
+    if("If-Match: '" in request.request_headers.keys() and status_code == '204'):
+        if_match = request.request_headers['If-Match: '].split(',')
+        if response_headers['Etag: '] in if_match:
+            status_code = '204'
+        else:
+            status_code = '412'#as per RFC 2616
+
+    if ("If-Unmodified-Since: " in request.request_headers.keys() and status_code =='204'):
+        date1 = request.request_headers['If-Unmodified-Since: ']
+        format1 = '%a, %d %b %Y %H:%M:%S GMT' # The format
+        if_date= datetime.strptime(date1, format1)
+        last_date = datetime.strptime(last_modified,format1)
+        curr_date =  datetime.strptime(general_headers['Date: '],format1)
+        if if_date > curr_date:
+            print('Invalid Date in header.Ignore header!')
+        elif if_date < last_date:
+            status_code = '412'
+        else:
+            status_code = '204'
+    '''
+    if ("If-None-Match: " in request.request_headers.keys() and status_code =='200'):
+        if_none_match = request.request_headers['If-None-Match: '].split(',')
+        if response_headers['Etag: '] in if_none_match:
+            status_code = '304'
+        else:
+            status_code = '200'
+    '''
     return
 #Aaj put ,Post , Multihthreding part.Udyaparynt xzal phaij.
 #Mag logging,Cookies
