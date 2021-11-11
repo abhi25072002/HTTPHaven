@@ -1,11 +1,3 @@
-'''
-For abbrevated day name : %a for full day %A
-for abbrevayted month : %b for full n ame %B
-modTimesinceEpoc = os.path.getmtime(filePath)
-# Convert seconds since epoch to readable timestamp
-modificationTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(modTimesinceEpoc))
-print("Last Modified Time : ", modificationTime )
-'''
 from datetime import datetime
 import os
 import time
@@ -16,50 +8,56 @@ import zlib
 import mimetypes
 import hashlib
 from functions import *
+import logging
 
 class request:
     def __init__(self,http_request):
+        print(http_request)
         self.http_request = http_request
         return
 
     #request_line= method space Request-URL space HTTP-version CRLF
     def get_request_line(self):
         try:
-            self.request_line = self.http_request.split('\r\n')[0]
+            self.request_line = self.http_request.split(b'\r\n')[0].decode()
             self.request_method = self.request_line.split(' ')[0]
             self.request_URI = self.request_line.split(' ')[1] #abs path
             self.http_version = self.request_line.split(' ')[2]
             self.request_line = self.request_line + '\r\n'
         except:
-            print("Error in Syntax:")
+            print("HII")
+            self.status_code = '400'
         return
 
     #3 header types: General Headers, Request header , Entity headers
     #message-header = field-name ":" [ field-value ]
     def extract_request_headers(self):
         self.request_headers={}
-        temp = self.http_request.split('\r\n')
-        j=0
-        for i in range(len(temp)):
-            if temp[i] == '' :
-                j=i
-                break
-        for i in range(1,j):
-            header_name = temp[i][:temp[i].find(':')]
-            header_value = temp[i][temp[i].find(':')+2:]
-            self.request_headers[header_name+': ']=header_value
+        temp = self.http_request.split(b'\r\n')
+        try:
+            j=0
+            for i in range(len(temp)):
+                if temp[i] == b'' :
+                    j=i
+                    break
+            for i in range(1,j):
+                header_name = temp[i][:temp[i].find(b':')].decode()
+                header_value = temp[i][temp[i].find(b':')+2:].decode()
+                self.request_headers[header_name+': ']=header_value
+        except:
+            self.status_code = '400'
 
     #required in case of post,put
     def get_message_body(self,connectionSocket):
         j=0
-        temp = self.http_request.split('\r\n')
+        temp = self.http_request.split(b'\r\n')
         for i in range(len(temp)):
-            if temp[i]=='':
+            if temp[i]==b'':
                 j=i
                 break
         self.message_body = temp[j+1:]
-        self.message_body = "\r\n".join(self.message_body)
-        self.message_body = self.message_body.encode()
+        self.message_body = b"\r\n".join(self.message_body)
+        #self.message_body = self.message_body.encode()
         #print("_-------------len()",len(self.message_body))
         contentlength = int(self.request_headers['Content-Length: '])
         if(contentlength!=len(self.message_body)):
@@ -74,8 +72,12 @@ class request:
     def print_http_request(self):
         print(self.http_request)
 
-    def parse_request(self,connectionSocket):
+    def parse_request(self,connectionSocket,client_address):
+        self.client_ip = client_address[0]
+        self.client_port = client_address[1]
         self.get_request_line()
+        print(self.request_method)
+        print(self.request_line)
         self.extract_request_headers()
         if(self.request_method in ['PUT','POST']):
             self.get_message_body(connectionSocket)
@@ -84,6 +86,11 @@ class request:
         self.print_http_request()
         print("Printing now headers:")
         print(self.request_headers)
+        try:
+            if(request.status_code == '400'):
+                pass
+        except:
+            request.status_code = '200'
         try:
             print("MEthod :",self.request_method,"version:",self.http_version,"Request URI:",self.request_URI,"Requestline:",self.request_line+"fjjdf\n")
         except:
@@ -97,23 +104,20 @@ def response_body_for_206(path,range_start,range_end):
     response = read[int(range_start):int(range_end)+1]
     return response
 
-def get_date():
-    time_1 = datetime.now()
-    date = time_1.strftime("%a, %d %b %Y %H:%M:%S GMT")
-    return date
-
 #response status code Handled in GET : 301,400,404,406,200,505,304,416,412,206
 def construct_get_head_response(request,method):
 
     #all headers in seperate dictionary
     #accpet-ranges:bytes means server can send partial request  we can ssay that Accept-ranges:None
     response_headers={"Location: ":"","Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-ranges: ":"bytes"}
-    general_headers={"Date: ":"","Transfer-Encoding: ":"","Connection: ":"Keep-Alive","Keep-Alive: ":"timeout=5, max=1000"}
+    general_headers={"Date: ":"","Connection: ":"Keep-Alive","Keep-Alive: ":"timeout=5, max=1000"}
     entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-MD5: ":"","Content-Language":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
     #assuming 200 status code initially
     status_code = '200'
+    if(request.status_code == '400'):
+        status_code = request.status_code
     #date header
-    general_headers['Date: '] = get_date()
+    general_headers['Date: '] = get_date() + ' GMT'
 
     response = ""
 
@@ -126,6 +130,7 @@ def construct_get_head_response(request,method):
     #check if requested URI exists or not
     if(request.request_URI =='/'):
         path = 'httpfiles/index.html'
+        print(path)
     else:
         path = request.request_URI.split('/')
         print(path)
@@ -149,18 +154,11 @@ def construct_get_head_response(request,method):
         fopen.close()
     else:
         status_code = '404'
-        response_phrase = 'Not Found'
-        fopen=open("httpfiles/404.html","rb")
-        response_body = fopen.read()
-        entity_headers['Content-Type: ']=mimetypes.guess_type("httpfiles/error_404.html")[0]
-        entity_headers['Content-Length: ']=str(len(response_body))
-        fopen.close()
-
     #Implementation of all conditional headers:
     #sequence of evaluation of conditional requests as per mentioned in RFC 7232,ifmatch->ifunmodified-since->ifNonematch,if-unmodifiedsince->if range
     #https://docs.w3cub.com/http/rfc7232#section-5
     #status codes related to conditionlal headers are : 304,412
-    if("If-Match: '" in request.request_headers.keys() and status_code == '200'):
+    if("If-Match: " in request.request_headers.keys() and status_code == '200'):
         if_match = request.request_headers['If-Match: '].split(',')
         if response_headers['Etag: '] in if_match:
             status_code = '200'
@@ -372,12 +370,13 @@ def construct_get_head_response(request,method):
     elif(status_code=='200'):
         #you can use identity as well 
         print("Choose deflat,gzip or .....")
+        print(path)
         f_open=open(path,"rb")
         response_body = f_open.read()
         response_body = gzip.compress(response_body)
         print("Else format")
         entity_headers['Content-Encoding: '] = 'gzip'
-        entity_headers['Content-Type: ']=mimetypes.guess_type(request.request_URI)[0]
+        entity_headers['Content-Type: ']=mimetypes.guess_type(path)[0]
         entity_headers['Content-Length: ']=str(len(response_body))
         f_open.close()
 
@@ -397,7 +396,7 @@ def construct_get_head_response(request,method):
                 range_start =x.split('-')[0]
                 range_end =x.split('-')[1]
                 response_1=response_body_for_206(path,range_start,range_end)
-                partial_header = 'Content-Type: '+mimetypes.guess_type(request.request_URI)[0]+'\r\n'
+                partial_header = 'Content-Type: '+mimetypes.guess_type(path)[0]+'\r\n'
                 partial_header +='Content-Range: '+'bytes ' + range_start + '-' + range_end +'/' +str(file_size) + '\r\n'
                 partial_header +='Content-Length: '+str(len(response_1))+'\r\n'
                 partial_body= boundary + partial_header
@@ -407,34 +406,22 @@ def construct_get_head_response(request,method):
 
     #Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
     #status_line = 'HTTP/1.1' + status_code + response_phrase + '\r\n'
-    if(status_code == '400'):
-        status_line = 'HTTP/1.1 ' + '404 Bad Request' + '\r\n'
-        response_body = b''
-    if(status_code =='404'):
-        status_line = 'HTTP/1.1 ' + '404 Not Found' + '\r\n'
-    elif(status_code =='304'):
-        status_line = 'HTTP/1.1 ' + '304 Not Modified' + '\r\n'
-        response_body = b''
-    elif(status_code =='412'):
-        status_line = 'HTTP/1.1 ' + '412 Precondition Failed' + '\r\n'
-        response_body = b''
-    elif(status_code == '406'):
-        status_line = 'HTTP/1.1 '+'406 Not Acceptable' + '\r\n'
-        response_body = b''
-    elif(status_code == '416'):
-        status_line = 'HTTP/1.1 '+'416 Range Not Satisfiable' + '\r\n'
+    if status_code in ['400','403','404','406','405','416']:
+        file_path = 'httpfiles/'+status_code + '.html'
+        file_open = open(file_path,'rb')
+        response_body = file_open.read()
+        entity_headers['Content-Type: ']=mimetypes.guess_type(file_path)[0]
+        entity_headers['Content-Length: ']=str(len(response_body))
+    elif status_code in ['304','412','505']:
         response_body = b''
         entity_headers['Content-Length: ']=str(len(response_body))
-    elif(status_code == '505'):
-        status_line = 'HTTP/1.1 '+'505 HTTP Version Not Supported' + '\r\n'
-    elif(status_code == '206'):
-        status_line = 'HTTP/1.1 '+'206 Partial Content' + '\r\n'
-    else:
-        status_line = 'HTTP/1.1 ' + '200 OK' + '\r\n'
 
+    status_line = 'HTTP/1.1 ' + status_code +' ' +  response_phrase[status_code] + '\r\n'
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response_message = status_line + response + '\r\n'
     print(response_message)
+
+    logging.access_log(request,status_code,general_headers['Date: '],entity_headers['Content-Length: '])
 
     response_message = response_message.encode()
     if(method=='HEAD'):
@@ -455,11 +442,12 @@ def construct_delete_response(request):
     response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)"}
     general_headers={"Date: ":"","Connection: ":""}
     entity_headers = {"Content-Type: ":"","Content-Length: ":""}
-
-    status_code ='200'
-    general_headers['Date: '] =get_date()
+    status_code = '200'
+    if(request.status_code == '400'):
+        status_code = 400
+    general_headers['Date: '] =get_date()+' GMT'
     #statuscode will be 200,405(method not allowed),202,204,412,403
-    if('Host: ' not in request.request_headers.keys() or request.request_headers['Host: ']!='127.0.0.1'):
+    if('Host: ' not in request.request_headers.keys() or request.request_headers['Host: ']!='127.0.0.1:12000'):
         status_code = '400'
 
     #check if requested URI exists or not
@@ -496,6 +484,7 @@ def construct_delete_response(request):
     entity_headers['Content-Type: ']=mimetypes.guess_type(path1)[0]
     entity_headers['Content-Length: ']=str(len(response_body))
     response = ''
+    logging.access_log(request,status_code,general_headers['Date: '],entity_headers['Content-Length: '])
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response_message = status_line + response + '\r\n'
     print(response_message)
@@ -627,9 +616,8 @@ def construct_post_response(request):
         fopen.close()
     elif(status_code!='404'):
         status_code = '415'
-    #u may generate Etag 
-    response_phrase = {'201':'Content Created','204':'No Content','400':'Bad Request','404':'Not Found','415':'Unsupported Media Type','412':'Precondition Failed'}
     status_line = 'HTTP/1.1 '+status_code + ' ' + response_phrase[status_code] + '\r\n'
+    logging.access_log(request,status_code,general_headers['Date: '],'0')
     response = ''
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response_body = b''
@@ -637,22 +625,26 @@ def construct_post_response(request):
     print(response)
     response_message = response.encode()+response_body
     return response_message
-#if match if modified all condtional headers yenare 
-#201,204,400 vgee tepan status codes yeten.
-#aaj saglya methods + logging suruwat zali pahij
+
 #link:https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests
 #conditonal headers : https://www.w3.org/1999/04/Editing/#3.1
 def construct_put_response(request):
-    #check if file have all permissions
-    #if file exists 
-    #now same as post 
-    #just here request URI plays very important role
-    #all conditional headers will be there1
-    #if ifle is read only then throw error of 405
+    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
+    general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":"","Location: ":""}
+    entity_headers={"Allow: ":"","Content-Type: ":"","Content-Length: ":"","Expires: ":"","Last-Modified: ":""}
+
+    general_headers['Date: '] = get_date()
     file_name = request.request_URI
     file_path = 'httpfiles'+file_name
-    status_code = '200'
-    if(os.path.exists(path) and status_code == '200'):
+    if(os.path.exists(file_path)):
+        fopen=open(file_path,"rb")
+        hasher = hashlib.md5()
+        buf = fopen.read()
+        hasher.update(buf)
+        response_headers['Etag: '] = hasher.hexdigest()
+        modifiedTime = os.path.getmtime(file_path)
+        last_modified = time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.localtime(modifiedTime))
+        entity_headers['Last-Modified: ']= last_modified
         status_code = '204'
     else:
         status_code = '201'    
@@ -676,14 +668,45 @@ def construct_put_response(request):
             status_code = '412'
         else:
             status_code = '204'
-    '''
-    if ("If-None-Match: " in request.request_headers.keys() and status_code =='200'):
-        if_none_match = request.request_headers['If-None-Match: '].split(',')
-        if response_headers['Etag: '] in if_none_match:
-            status_code = '304'
-        else:
-            status_code = '200'
-    '''
-    return
-#Aaj put ,Post , Multihthreding part.Udyaparynt xzal phaij.
-#Mag logging,Cookies
+    
+    #refer race conition during conditonal request:https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests
+    if ("If-None-Match: " in request.request_headers.keys() and status_code =='204'):
+        status_code = '412'
+    content_type_file_path = mimetypes.guess_type(file_path)[0]
+    if(content_type_file_path == request.request_headers['Content-Type: '] and status_code in ['201','204']):
+        try:
+            file_open = open(file_path,"wb")
+            file_open.write(request.message_body)
+            file_open.close()
+            file_open=open(file_path,"rb")
+            hasher = hashlib.md5()
+            buf = file_open.read()
+            hasher.update(buf)
+            file_open.close()
+            response_headers['Etag: '] = hasher.hexdigest()
+            modifiedTime = os.path.getmtime(file_path)
+            last_modified = time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.localtime(modifiedTime))
+            entity_headers['Last-Modified: '] = last_modified
+        except:
+            status_code = '405'
+    else:
+        status_code = '415'#for conflict
+    if status_code == '201':
+        general_headers['Location: ']=file_path
+    status_line = 'HTTP/1.1 '+ status_code + ' ' + response_phrase[status_code] + '\r\n'
+    if status_code in ['201','204']:
+        response_body = b''
+    elif status_code in ['400','403','405','412','415']:
+        try:
+            error_file = open('httpfiles/'+status_code+'.html','rb')
+            response_body = error_file.read()
+            error_file.close()
+        except:
+            response_body = b''
+    response = ''
+    response = build_response_headers(response_headers,general_headers,entity_headers)
+    response = status_line + response + '\r\n'
+    print(response)
+    logging.access_log(request,status_code,general_headers['Date: '],'0')
+    response_message = response.encode()+response_body
+    return response_message
