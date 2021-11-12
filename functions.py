@@ -35,11 +35,10 @@ def build_response_headers(response_headers,general_headers,entity_headers):
             continue
     for key in entity_headers.keys():
         if(entity_headers[key]!=''):
-            print(type(entity_headers[key]),type(key),key,entity_headers[key],key)
+            #print(type(entity_headers[key]),type(key),key,entity_headers[key],key)
             response +=key+entity_headers[key]+'\r\n'
         else:
             continue
-    #print(response)
     return response
 
 def get_date():

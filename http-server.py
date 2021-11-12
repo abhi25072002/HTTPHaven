@@ -61,7 +61,7 @@ while True:
     connectionSocket, address = serverSocket.accept()
     print("Connected by", address)
     if(len(clients.keys())<= int(MaxSimultaneousConnection)):
-        clients[address]=1
+        clients[address]=0
         th = threading.Thread(target=send_response_to_client, args=(connectionSocket,address,))
         th.start()
     else:

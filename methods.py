@@ -16,7 +16,6 @@ class request:
         print(http_request)
         self.http_request = http_request
         return
-
     #request_line= method space Request-URL space HTTP-version CRLF
     def get_request_line(self):
         try:
@@ -28,7 +27,6 @@ class request:
         except:
             self.status_code = '400'
         return
-
     #3 header types: General Headers, Request header , Entity headers
     #message-header = field-name ":" [ field-value ]
     def extract_request_headers(self):
@@ -46,7 +44,6 @@ class request:
                 self.request_headers[header_name+': ']=header_value
         except:
             self.status_code = '400'
-
     #required in case of post,put
     def get_message_body(self,connectionSocket):
         j=0
@@ -101,7 +98,6 @@ class request:
         return
 
 config = configparser.ConfigParser()
-print(config.sections())
 config_file = 'abhishek_HTTPServer.conf'
 config.read(config_file)
 print(config.sections())
