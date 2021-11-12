@@ -9,6 +9,7 @@ import mimetypes
 import hashlib
 from functions import *
 import logging
+import configparser
 
 class request:
     def __init__(self,http_request):
@@ -25,7 +26,6 @@ class request:
             self.http_version = self.request_line.split(' ')[2]
             self.request_line = self.request_line + '\r\n'
         except:
-            print("HII")
             self.status_code = '400'
         return
 
@@ -76,82 +76,94 @@ class request:
         self.client_ip = client_address[0]
         self.client_port = client_address[1]
         self.get_request_line()
-        print(self.request_method)
-        print(self.request_line)
+        #print(self.request_method)
+        #print(self.request_line)
         self.extract_request_headers()
         if(self.request_method in ['PUT','POST']):
             self.get_message_body(connectionSocket)
         else:
             self.message_body = ''
-        self.print_http_request()
-        print("Printing now headers:")
-        print(self.request_headers)
+        #self.print_http_request()
+        #print("Printing now headers:")
+        #print(self.request_headers)
         try:
             if(request.status_code == '400'):
                 pass
         except:
             request.status_code = '200'
         try:
-            print("MEthod :",self.request_method,"version:",self.http_version,"Request URI:",self.request_URI,"Requestline:",self.request_line+"fjjdf\n")
+            pass
+            #print("MEthod :",self.request_method,"version:",self.http_version,"Request URI:",self.request_URI,"Requestline:",self.request_line+"fjjdf\n")
         except:
-            print("error")
+            pass
+            #print("error")
         #print(self.message_body)
         return
 
-def response_body_for_206(path,range_start,range_end):
-    file_o = open(path,"rb")
-    read = file_o.read()
-    response = read[int(range_start):int(range_end)+1]
-    return response
+config = configparser.ConfigParser()
+print(config.sections())
+config_file = 'abhishek_HTTPServer.conf'
+config.read(config_file)
+print(config.sections())
+global DocumentRoot
+global PostRoot 
+global KeepAlive 
+global TimeOut
+global MaxKeepAliveRequests 
+global KeepAliveTimeout 
+global MaxSimultaneousConnection 
+global port 
+DocumentRoot = config['DOCUMENTROOT']['DocumentRoot']
+PostRoot = config ['POSTROOT']['PostRoot']
+TimeOut = config ['TIMEOUT']['TimeOut']
+KeepAlive = config ['KEEP_ALIVE']['KeepAlive']
+MaxKeepAliveRequests = config['MAX_KEEP_ALIVE_REQUESTS']['MaxKeepAliveRequests']
+KeepAliveTimeout = config['KEEP_ALIVE_TIMEOUT']['KeepAliveTimeout']
+MaxSimultaneousConnection = config['MAX_SIMULTANEOUS_CONNECTION']['MaxSimultaneousConnection']
+port = config['PORT_NUMBER']['PortNumber']
+print(port,DocumentRoot,PostRoot,KeepAlive,port)
 
 #response status code Handled in GET : 301,400,404,406,200,505,304,416,412,206
 def construct_get_head_response(request,method):
 
     #all headers in seperate dictionary
-    #accpet-ranges:bytes means server can send partial request  we can ssay that Accept-ranges:None
+    #accpet-ranges:bytes means server can send partial request  we can say that Accept-ranges:None
     response_headers={"Location: ":"","Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-ranges: ":"bytes"}
-    general_headers={"Date: ":"","Connection: ":"Keep-Alive","Keep-Alive: ":"timeout=5, max=1000"}
+    general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
     entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-MD5: ":"","Content-Language":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
+
     #assuming 200 status code initially
     status_code = '200'
     if(request.status_code == '400'):
         status_code = request.status_code
+
     #date header
     general_headers['Date: '] = get_date() + ' GMT'
-
     response = ""
 
-    #check for any error in request 
+    #check if Host-header in request 
     if('Host: ' not in request.request_headers.keys()):
         status_code = '400'
-
+    #check if HTTP version is supported 
     if(request.http_version!='HTTP/1.1'):
         status_code = '505'
+    #NOTE:itha syntax chukla tar 400 error    
     #check if requested URI exists or not
     if(request.request_URI =='/'):
-        path = 'httpfiles/index.html'
+        path = DocumentRoot + '/index.html'
         print(path)
     else:
-        path = request.request_URI.split('/')
-        print(path)
-        if len(path)==2:
-            print("In right path")
-            path = 'httpfiles/'+ path[1]        #defaultlocation for server is httpfiles
-        else:
-            path = 'httpfiles'+request.request_URI
+        path = DocumentRoot + request.request_URI
     #Etag generation using hashing technique  
     #link for ref:https://www.pythoncentral.io/hashing-files-with-python/
     #hashing using hashlib (Here used MD5 hash technique)
+    #NOTE: Ek general function which take file name and will give all body in rb format
+    #if file exist calculate ETag and last modified date 
     if(os.path.exists(path)):
-        fopen=open(path,"rb")
-        hasher = hashlib.md5()
-        buf = fopen.read()
-        hasher.update(buf)
-        response_headers['Etag: '] = hasher.hexdigest()
+        response_headers['Etag: '] = calculate_ETAG(path)
         modifiedTime = os.path.getmtime(path)
         last_modified = time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.localtime(modifiedTime))
         entity_headers['Last-Modified: ']= last_modified
-        fopen.close()
     else:
         status_code = '404'
     #Implementation of all conditional headers:
@@ -197,7 +209,8 @@ def construct_get_head_response(request,method):
             status_code = '200'
         else:
             status_code = '304'
-
+    
+    #if range : <e-tag> | Date (as per RFC format)
     #if-range header will be evaluated if and only if range header is present otherwise ignore this header
     if("If-Range: " in request.request_headers.keys() and "Range : " in request.request_headers.keys() and status_code == '200'):
         #if range : etag or http-date if etag given match etag,if date is provded comapre with last modified time
@@ -237,6 +250,8 @@ def construct_get_head_response(request,method):
                 if(int(range_start)>=file_size):
                     continue
                 else:
+                    interval.append(int(range_start))
+                    interval.append(range_end)
                     valid_range.append(range_start+'-'+str(range_end))
             elif(x[0]=='-'):
                 print("Inx[-0]]",x)
@@ -248,6 +263,8 @@ def construct_get_head_response(request,method):
                     continue
                 else:
                     print(type(range_start),type('-'),type(range_end))
+                    interval.append(range_start)
+                    interval.append(range_end)
                     valid_range.append(str(range_start)+'-'+str(range_end))
             elif(x.find('-')!=-1):
                 range_start=x.split('-')[0]
@@ -255,9 +272,14 @@ def construct_get_head_response(request,method):
                 if(int(range_start)>=file_size or int(range_end)>=file_size or int(range_start)>int(range_end)):
                     continue
                 else:
+                    interval.append(int(range_start))
+                    interval.append(int(range_end))
                     valid_range.append(range_start+'-'+range_end)
             else:
+                status_code = '400'
                 print("Invalid syntax:")
+        if(overlapping_interval(interval)):
+            status_code = '416'
         if len(valid_range)==0:
             status_code = '416'
             entity_headers['Content-Range: ']='bytes */'+str(file_size)
@@ -405,7 +427,12 @@ def construct_get_head_response(request,method):
             entity_headers['Content-Length: '] = str(len(response_body))
 
     #Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-    #status_line = 'HTTP/1.1' + status_code + response_phrase + '\r\n'
+    if KeepAlive == 'On':
+        general_headers['Connection: '] = 'Keep-Alive'
+        keep_alive = 'timeout=' + KeepAliveTimeout + ', max=' + MaxKeepAliveRequests
+        general_headers['Keep-Alive: '] = keep_alive
+    else:
+        general_headers['Connection: '] = 'Close'
     if status_code in ['400','403','404','406','405','416']:
         file_path = 'httpfiles/'+status_code + '.html'
         file_open = open(file_path,'rb')
@@ -415,7 +442,7 @@ def construct_get_head_response(request,method):
     elif status_code in ['304','412','505']:
         response_body = b''
         entity_headers['Content-Length: ']=str(len(response_body))
-
+    
     status_line = 'HTTP/1.1 ' + status_code +' ' +  response_phrase[status_code] + '\r\n'
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response_message = status_line + response + '\r\n'
@@ -447,23 +474,16 @@ def construct_delete_response(request):
         status_code = 400
     general_headers['Date: '] =get_date()+' GMT'
     #statuscode will be 200,405(method not allowed),202,204,412,403
-    if('Host: ' not in request.request_headers.keys() or request.request_headers['Host: ']!='127.0.0.1:12000'):
+    if('Host: ' not in request.request_headers.keys()):
         status_code = '400'
 
     #check if requested URI exists or not
     if(request.request_URI =='/'):
-        path = 'httpfiles/index.html'
+        path = DocumentRoot + '/index.html'
     else:
-        path = request.request_URI.split('/')
-        print(path)
-        if len(path)==2:#itha request_uri doesnot contain / asen tar error 400 dyaycha
-            print("In right path")
-            path = 'httpfiles/'+ path[1]        #defaultlocation for server is httpfiles
-        else:
-            path = 'httpfiles'+request.request_URI
+        path = DocumentRoot + request.request_URI
     if(os.path.exists(path) and status_code == '200'):
         try:
-            print('in_write_thing')
             os.remove(path)
             status_code = '200'
         except PermissionError:
@@ -474,20 +494,20 @@ def construct_delete_response(request):
     if(status_code == '200'):
         path1 = 'httpfiles/delete_200.html'
     else:
-        path1 = 'httpfiles/'+status_code+'.html'
+        path1 = DocumentRoot + status_code+'.html'
 
-    fopen = open(path1,"rb")
-    response_body = fopen.read()
-    fopen.close()
+    
+    response_body = read_file(path1)
+
     status_line = 'HTTP/1.1 '+status_code + ' ' + response_phrase[status_code] + '\r\n'
-    print(status_line)
+    #print(status_line)
     entity_headers['Content-Type: ']=mimetypes.guess_type(path1)[0]
     entity_headers['Content-Length: ']=str(len(response_body))
     response = ''
     logging.access_log(request,status_code,general_headers['Date: '],entity_headers['Content-Length: '])
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response_message = status_line + response + '\r\n'
-    print(response_message)
+    #print(response_message)
     response_message = response_message.encode()
     response_message+=response_body
     return response_message
@@ -495,12 +515,13 @@ def construct_delete_response(request):
 #if-unmodifed-since karne
 def construct_post_response(request):
     #400,403,405 method not allowed,301,302(moved permanently wala , 201 created wala 
-    #nntr headers baghychet konte hou shaktat 
     response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
     entity_headers={"Allow: ":"","Content-Location: ":"","Expires: ":""}
+
     status_code = '200'
     general_headers['Date: '] = get_date()
+
     request_body = request.message_body
     content_type = request.request_headers['Content-Type: ']
     folder_name = request.request_URI
@@ -617,7 +638,9 @@ def construct_post_response(request):
     elif(status_code!='404'):
         status_code = '415'
     status_line = 'HTTP/1.1 '+status_code + ' ' + response_phrase[status_code] + '\r\n'
+
     logging.access_log(request,status_code,general_headers['Date: '],'0')
+
     response = ''
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response_body = b''
@@ -635,13 +658,9 @@ def construct_put_response(request):
 
     general_headers['Date: '] = get_date()
     file_name = request.request_URI
-    file_path = 'httpfiles'+file_name
+    file_path = DocumentRoot + file_name
     if(os.path.exists(file_path)):
-        fopen=open(file_path,"rb")
-        hasher = hashlib.md5()
-        buf = fopen.read()
-        hasher.update(buf)
-        response_headers['Etag: '] = hasher.hexdigest()
+        response_headers['Etag: '] = calculate_ETAG(file_path)
         modifiedTime = os.path.getmtime(file_path)
         last_modified = time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.localtime(modifiedTime))
         entity_headers['Last-Modified: ']= last_modified
@@ -649,11 +668,14 @@ def construct_put_response(request):
     else:
         status_code = '201'    
 
-    if("If-Match: '" in request.request_headers.keys() and status_code == '204'):
+    if("If-Match: " in request.request_headers.keys() and status_code == '204'):
         if_match = request.request_headers['If-Match: '].split(',')
+        print(if_match)
+        print(response_headers['Etag: '])
         if response_headers['Etag: '] in if_match:
             status_code = '204'
         else:
+            print("KKKK")
             status_code = '412'#as per RFC 2616
 
     if ("If-Unmodified-Since: " in request.request_headers.keys() and status_code =='204'):
@@ -678,35 +700,50 @@ def construct_put_response(request):
             file_open = open(file_path,"wb")
             file_open.write(request.message_body)
             file_open.close()
-            file_open=open(file_path,"rb")
-            hasher = hashlib.md5()
-            buf = file_open.read()
-            hasher.update(buf)
-            file_open.close()
-            response_headers['Etag: '] = hasher.hexdigest()
+            response_headers['Etag: '] = calculate_ETAG(file_path)
             modifiedTime = os.path.getmtime(file_path)
             last_modified = time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.localtime(modifiedTime))
             entity_headers['Last-Modified: '] = last_modified
         except:
             status_code = '405'
-    else:
-        status_code = '415'#for conflict
+            entity_headers['Allow: '] = 'GET,HEAD'
+    elif status_code!='412':
+        status_code = '415'
     if status_code == '201':
         general_headers['Location: ']=file_path
+
     status_line = 'HTTP/1.1 '+ status_code + ' ' + response_phrase[status_code] + '\r\n'
-    if status_code in ['201','204']:
-        response_body = b''
-    elif status_code in ['400','403','405','412','415']:
-        try:
-            error_file = open('httpfiles/'+status_code+'.html','rb')
-            response_body = error_file.read()
-            error_file.close()
-        except:
-            response_body = b''
-    response = ''
+    file_path = 'httpfiles/'+status_code + '.html'
+    response_body = read_file(file_path)    
+
+    if status_code in ['400','403','405']:
+        entity_headers['Content-Type: ']='text/html'
+        entity_headers['Content-Length: ']=str(len(response_body))
+
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response = status_line + response + '\r\n'
-    print(response)
+
     logging.access_log(request,status_code,general_headers['Date: '],'0')
+
     response_message = response.encode()+response_body
     return response_message
+
+def construct_response(client_request):
+    if (client_request.request_method == 'GET'):
+        response = construct_get_response(client_request)
+    elif (client_request.request_method == 'HEAD'):
+        response = construct_head_response(client_request)
+    elif (client_request.request_method == 'DELETE'):
+        response = construct_delete_response(client_request)
+    elif (client_request.request_method == 'POST'):
+        response = construct_post_response(client_request)
+    elif (client_request.request_method == 'PUT'):
+        response = construct_put_response(client_request)
+    else:
+        response = 'HTTP/1.1 501 NOT implemented\r\n'
+        response += 'Server: HTTP-server\r\n'
+        today = get_date() + ' GMT'
+        response += 'Date: '+today+'\r\n'
+        response += '\r\n'
+        response = response.encode()
+    return response
