@@ -8,7 +8,7 @@ import zlib
 import mimetypes
 import hashlib
 from functions import *
-import logging
+import logger
 import configparser
 
 class request:
@@ -124,6 +124,7 @@ port = config['PORT_NUMBER']['PortNumber']
 print(port,DocumentRoot,PostRoot,KeepAlive,port)
 
 #response status code Handled in GET : 301,400,404,406,200,505,304,416,412,206
+#NOTE:if path is directory case not handled for directory for get head delete.
 def construct_get_head_response(request,method):
 
     #all headers in seperate dictionary
@@ -448,7 +449,7 @@ def construct_get_head_response(request,method):
     response_message = status_line + response + '\r\n'
     print(response_message)
 
-    logging.access_log(request,status_code,general_headers['Date: '],entity_headers['Content-Length: '])
+    logger.access_log(request,status_code,general_headers['Date: '],entity_headers['Content-Length: '])
 
     response_message = response_message.encode()
     if(method=='HEAD'):
@@ -504,7 +505,7 @@ def construct_delete_response(request):
     entity_headers['Content-Type: ']=mimetypes.guess_type(path1)[0]
     entity_headers['Content-Length: ']=str(len(response_body))
     response = ''
-    logging.access_log(request,status_code,general_headers['Date: '],entity_headers['Content-Length: '])
+    logger.access_log(request,status_code,general_headers['Date: '],entity_headers['Content-Length: '])
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response_message = status_line + response + '\r\n'
     #print(response_message)
@@ -639,7 +640,7 @@ def construct_post_response(request):
         status_code = '415'
     status_line = 'HTTP/1.1 '+status_code + ' ' + response_phrase[status_code] + '\r\n'
 
-    logging.access_log(request,status_code,general_headers['Date: '],'0')
+    logger.access_log(request,status_code,general_headers['Date: '],'0')
 
     response = ''
     response = build_response_headers(response_headers,general_headers,entity_headers)
@@ -651,6 +652,7 @@ def construct_post_response(request):
 
 #link:https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests
 #conditonal headers : https://www.w3.org/1999/04/Editing/#3.1
+#NOTE:PAth is directory for python or conmtent-type is application/loctetstream
 def construct_put_response(request):
     response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":"","Location: ":""}
@@ -723,7 +725,7 @@ def construct_put_response(request):
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response = status_line + response + '\r\n'
 
-    logging.access_log(request,status_code,general_headers['Date: '],'0')
+    logger.access_log(request,status_code,general_headers['Date: '],'0')
 
     response_message = response.encode()+response_body
     return response_message
@@ -741,7 +743,7 @@ def construct_response(client_request):
         response = construct_put_response(client_request)
     else:
         response = 'HTTP/1.1 501 NOT implemented\r\n'
-        response += 'Server: HTTP-server\r\n'
+        response += 'Server: HTTP-server/1.2.4(Ubuntu)\r\n'
         today = get_date() + ' GMT'
         response += 'Date: '+today+'\r\n'
         response += '\r\n'
