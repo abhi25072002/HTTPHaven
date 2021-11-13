@@ -1,6 +1,8 @@
+#jdj
 from datetime import datetime
 import hashlib
 import time
+import os
 response_phrase = {
         "200":'OK',
         "201":'Created',
@@ -20,26 +22,6 @@ response_phrase = {
         "501":'Not Implemented',
         "505":'HTTP Version Not supported'
 }
-
-def build_response_headers(response_headers,general_headers,entity_headers):
-    response = ''
-    for key in response_headers.keys():
-        if(response_headers[key]!=''):
-            response +=key+response_headers[key]+'\r\n'
-        else:
-            continue
-    for key in general_headers.keys():
-        if(general_headers[key]!=''):
-            response +=key+general_headers[key]+'\r\n'
-        else:
-            continue
-    for key in entity_headers.keys():
-        if(entity_headers[key]!=''):
-            #print(type(entity_headers[key]),type(key),key,entity_headers[key],key)
-            response +=key+entity_headers[key]+'\r\n'
-        else:
-            continue
-    return response
 
 def get_date():
     time_1 = datetime.now()
@@ -72,7 +54,6 @@ def calculate_ETAG(file_path):
     hasher = hashlib.md5()
     hasher.update(body)
     return hasher.hexdigest()
-#def get_modified_time(file_path)
 #def get_date in specifed format
 #interval should be strictly increasing for non overlapping
 def overlapping_interval(interval):
@@ -80,4 +61,24 @@ def overlapping_interval(interval):
         if(interval[i]>interval[i+1]):
             return 0
     return 1
+
+def build_response_headers(response_headers,general_headers,entity_headers):
+    response = ''
+    for key in response_headers.keys():
+        if(response_headers[key]!=''):
+            response +=key+response_headers[key]+'\r\n'
+        else:
+            continue
+    for key in general_headers.keys():
+        if(general_headers[key]!=''):
+            response +=key+general_headers[key]+'\r\n'
+        else:
+            continue
+    for key in entity_headers.keys():
+        if(entity_headers[key]!=''):
+            #print(type(entity_headers[key]),type(key),key,entity_headers[key],key)
+            response +=key+entity_headers[key]+'\r\n'
+        else:
+            continue
+    return response
 

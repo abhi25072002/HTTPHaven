@@ -220,7 +220,9 @@ def DELETE_TEST_CASE_1():
     response = requests.delete(request_url+'/delete2.html')
     log_response(response)
     return
+
 #201, 204 for sample .txt .html plain  files
+#ref for put requests:https://www.geeksforgeeks.org/put-method-python-requests/
 #first two cases files exists and overwritten by put and next two cases are files not exists , created.
 def PUT_TEST_CASE_1():
     #201 for creating file
@@ -298,18 +300,66 @@ def PUT_TEST_CASE_3():
     response = requests.put(request_url+'/put.txt',data = read_data,headers=headers_list)
     log_response(response)
     return
+
+#content-type:application/x-www-form-urlencoded Key valeu in every pair
 def POST_TEST_CASE_1():
+    #by default data will be added in post.log file in default POST directory
+    dictionary = {'MIS':'111903007','Name':'abhishek'}
+    response = requests.post(request_url,data=dictionary)
+    log_response(response)
+    #data will be added in created directory POST/test/post.log method
+    dictionary = {'MIS':'111903007','111903007':'NAME','Computer-Network':'Kurose-Ross'}
+    response = requests.post(request_url+'/test_1',data=dictionary)
+    log_response(response)
+    #text/plain data
+    headers_list = {'Content-Type':'text/plain'}
+    content = 'This data will be logged into index.txt file in\n path provided as requested URI'
+    response = requests.post(request_url+'/test_1',data=content,headers=headers_list)
+    log_response(response)
+    #text/html
+    headers_list = {'Content-Type':'text/html'}
+    content = '<html>\n<head>\n\t<title>Abhishek_Server</title>\n</head>\n<body>\n<h1>HTMl content uploaded in index.html file</h1>\n</body>\n</html>'
+    response = requests.post(request_url+'/test_1/',data=content,headers=headers_list)
+    log_response(response)
+    #js
+    headers_list = {'Content-Type':'application/javascript'}
+    content="console.log(10+20)"
+    response = requests.post(request_url+'/test_1',data=content,headers=headers_list)
+    log_response(response)
+    #json
+    headers_list = {'Content-Type':'application/json'}
+    json_object={'District':'Pune','State':'Maharashtra'}
+    response = requests.post(request_url+'/test_1',json=json_object,headers=headers_list)
+    log_response(response)
     return
+
+#content-type:multiform/byteranges:with file posting/uploading
+#ref:https://www.w3schools.com/python/showpython.asp?filename=demo_requests_post_files
 def POST_TEST_CASE_2():
+    #form data + files 
+    content = {'MIS_NO':'111903007','College':'COEP'}
+    files_list = {'file':open('testing/sample_post_form.html','rb')}
+    response = requests.post('http://127.0.0.1:12001/test_2',files=files_list, data=content)
+    log_response(response)
+    #multiple form data + multiple file uploading
+    content= {'Name':'Abhishek','State':'Maharashtra'}
+    files_list = {'file':open('testing/sample_post_test.py','rb'),'file1':open('testing/sample_post_image.jpeg','rb')}
+    response = requests.post('http://127.0.0.1:12001/test_2/',files=files_list , data=content)
+    log_response(response)
     return
+
+#content-type multiform/byetranges + uploading different types of media 
 def POST_TEST_CASE_3():
+    #404_status_
+    content = {'MIS_NO':'111903007','College':'COEP'}
+    files_list = {'file':open('testing/sample_post_form.html','rb')}
+    response = requests.post('http://127.0.0.1:12001/test_3',files=files_list, data=content)
+    log_response(response)
+    #405 status:
+    response = requests.post('http://127.0.0.1:12001/test_2/sample_post_test.py',files=files_list, data=content)
+    log_response(response)
     return
-def POST_TEST_CASE_4():
-    return
-def POST_TEST_CASE_5():
-    return
-def POST_TEST_CASE_6():
-    return
+
 def PER_NON_PERSISTENT_TEST_CASE():
     return
 def MAX_REQUEST_PER_CLIENT_TEST_CASE():
@@ -320,21 +370,23 @@ def SYNTAX_ERROR_TEST_CASE():
     return
 def SERVER_ERROR_TEST_CASE():
     return
-'''
+
 get_TEST_CASE_1()
 get_TEST_CASE_2()
-
 get_TEST_CASE_3()
 get_TEST_CASE_4()
-
 get_TEST_CASE_5()
 get_TEST_CASE_6()
 
 HEAD_TEST_CASE_1()
 HEAD_TEST_CASE_2()
-'''
-print(KeepAlive)
+
 DELETE_TEST_CASE_1()
+
 PUT_TEST_CASE_1()
 PUT_TEST_CASE_2()
 PUT_TEST_CASE_3()
+
+POST_TEST_CASE_1()
+POST_TEST_CASE_2()
+POST_TEST_CASE_3()

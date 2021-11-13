@@ -2,7 +2,7 @@ import os
 import configparser
 def access_log(request,status_code,date,content_length):
     config = configparser.ConfigParser()
-    config_file = 'abhishek_HTTPServer.conf'
+    config_file = 'abhishekS.conf'
     config.read(config_file)
     access_log = config['ACCESSLOG']['AccessLog']
     SP = ' '
