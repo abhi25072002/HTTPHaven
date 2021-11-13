@@ -11,6 +11,28 @@ from functions import *
 import logger
 import configparser
 
+config = configparser.ConfigParser()
+config_file = 'abhishek_HTTPServer.conf'
+config.read(config_file)
+global DocumentRoot
+global PostRoot
+global PutRoot
+global KeepAlive
+global TimeOut
+global MaxKeepAliveRequests
+global KeepAliveTimeout
+global MaxSimultaneousConnection
+global port
+DocumentRoot = config['DOCUMENTROOT']['DocumentRoot']
+PostRoot = config ['POSTROOT']['PostRoot']
+PutRoot = config ['PUTROOT']['PutRoot']
+TimeOut = config ['TIMEOUT']['TimeOut']
+KeepAlive = config ['KEEP_ALIVE']['KeepAlive']
+MaxKeepAliveRequests = config['MAX_KEEP_ALIVE_REQUESTS']['MaxKeepAliveRequests']
+KeepAliveTimeout = config['KEEP_ALIVE_TIMEOUT']['KeepAliveTimeout']
+MaxSimultaneousConnection = config['MAX_SIMULTANEOUS_CONNECTION']['MaxSimultaneousConnection']
+port = config['PORT_NUMBER']['PortNumber']
+
 class request:
     def __init__(self,http_request):
         print(http_request)
@@ -97,27 +119,7 @@ class request:
         #print(self.message_body)
         return
 
-config = configparser.ConfigParser()
-config_file = 'abhishek_HTTPServer.conf'
-config.read(config_file)
-print(config.sections())
-global DocumentRoot
-global PostRoot 
-global KeepAlive 
-global TimeOut
-global MaxKeepAliveRequests 
-global KeepAliveTimeout 
-global MaxSimultaneousConnection 
-global port 
-DocumentRoot = config['DOCUMENTROOT']['DocumentRoot']
-PostRoot = config ['POSTROOT']['PostRoot']
-TimeOut = config ['TIMEOUT']['TimeOut']
-KeepAlive = config ['KEEP_ALIVE']['KeepAlive']
-MaxKeepAliveRequests = config['MAX_KEEP_ALIVE_REQUESTS']['MaxKeepAliveRequests']
-KeepAliveTimeout = config['KEEP_ALIVE_TIMEOUT']['KeepAliveTimeout']
-MaxSimultaneousConnection = config['MAX_SIMULTANEOUS_CONNECTION']['MaxSimultaneousConnection']
-port = config['PORT_NUMBER']['PortNumber']
-print(port,DocumentRoot,PostRoot,KeepAlive,port)
+#print(port,DocumentRoot,PostRoot,KeepAlive,port)
 
 #response status code Handled in GET : 301,400,404,406,200,505,304,416,412,206
 #NOTE:if path is directory case not handled for directory for get head delete.
@@ -652,10 +654,12 @@ def construct_put_response(request):
     response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":"","Location: ":""}
     entity_headers={"Allow: ":"","Content-Type: ":"","Content-Length: ":"","Expires: ":"","Last-Modified: ":""}
-
-    general_headers['Date: '] = get_date()
+    
+    general_headers['Date: '] = get_date()+' GMT'
     file_name = request.request_URI
-    file_path = DocumentRoot + file_name
+    file_path = PutRoot + file_name
+    if(not os.path.exists(PutRoot)):
+        os.mkdir(PutRoot)
     if(os.path.exists(file_path)):
         response_headers['Etag: '] = calculate_ETAG(file_path)
         modifiedTime = os.path.getmtime(file_path)

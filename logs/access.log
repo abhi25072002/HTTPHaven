@@ -510,3 +510,191 @@
 127.0.0.1 38468 - [Sat, 13 Nov 2021 18:45:44] "POST /images/form.html HTTP/1.1" 404 0 PostmanRuntime/7.28.4
 127.0.0.1 38474 - [Sat, 13 Nov 2021 18:45:51] "POST /images/functiosn.png HTTP/1.1" 404 0 PostmanRuntime/7.28.4
 127.0.0.1 38476 - [Sat, 13 Nov 2021 18:45:57] "POST /images/post.log HTTP/1.1" 404 0 PostmanRuntime/7.28.4
+127.0.0.1 40698 - [Sat, 13 Nov 2021 19:29:16] "PUT /new.py HTTP/1.1" 201 0 PostmanRuntime/7.28.4
+127.0.0.1 41026 - [Sat, 13 Nov 2021 19:40:34] "PUT /new.txt HTTP/1.1" 415 0 python-requests/2.22.0
+127.0.0.1 41146 - [Sat, 13 Nov 2021 19:45:13] "PUT /new.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 41602 - [Sat, 13 Nov 2021 20:07:30] "PUT /new.py HTTP/1.1" 201 0 PostmanRuntime/7.28.4
+127.0.0.1 41646 - [Sat, 13 Nov 2021 20:09:03] "PUT /new.py HTTP/1.1" 201 0 PostmanRuntime/7.28.4
+127.0.0.1 41656 - [Sat, 13 Nov 2021 20:10:34] "PUT /new.py HTTP/1.1" 201 0 PostmanRuntime/7.28.4
+127.0.0.1 41980 - [Sat, 13 Nov 2021 20:26:54 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 41982 - [Sat, 13 Nov 2021 20:26:54 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 41984 - [Sat, 13 Nov 2021 20:26:54] "PUT /put.txt HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 41986 - [Sat, 13 Nov 2021 20:26:54] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42008 - [Sat, 13 Nov 2021 20:27:35 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42010 - [Sat, 13 Nov 2021 20:27:35 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42012 - [Sat, 13 Nov 2021 20:27:35] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42014 - [Sat, 13 Nov 2021 20:27:35] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42022 - [Sat, 13 Nov 2021 20:28:24 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42024 - [Sat, 13 Nov 2021 20:28:24 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42026 - [Sat, 13 Nov 2021 20:28:24] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42356 - [Sat, 13 Nov 2021 20:47:30 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42358 - [Sat, 13 Nov 2021 20:47:30 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42360 - [Sat, 13 Nov 2021 20:47:30] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42362 - [Sat, 13 Nov 2021 20:47:30] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42364 - [Sat, 13 Nov 2021 20:47:30] "PUT /put.html HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 42366 - [Sat, 13 Nov 2021 20:48:01 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42368 - [Sat, 13 Nov 2021 20:48:01 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42370 - [Sat, 13 Nov 2021 20:48:01] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42372 - [Sat, 13 Nov 2021 20:48:01] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42374 - [Sat, 13 Nov 2021 20:48:01] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42376 - [Sat, 13 Nov 2021 20:48:22 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42378 - [Sat, 13 Nov 2021 20:48:22 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42380 - [Sat, 13 Nov 2021 20:48:22] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42382 - [Sat, 13 Nov 2021 20:48:22] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42384 - [Sat, 13 Nov 2021 20:48:22] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42386 - [Sat, 13 Nov 2021 20:48:22] "PUT /put.py HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 42430 - [Sat, 13 Nov 2021 20:49:14 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42432 - [Sat, 13 Nov 2021 20:49:14 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42434 - [Sat, 13 Nov 2021 20:49:14] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42436 - [Sat, 13 Nov 2021 20:49:14] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42438 - [Sat, 13 Nov 2021 20:49:14] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42440 - [Sat, 13 Nov 2021 20:49:14] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42564 - [Sat, 13 Nov 2021 20:56:37 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42566 - [Sat, 13 Nov 2021 20:56:37 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42568 - [Sat, 13 Nov 2021 20:56:37] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42570 - [Sat, 13 Nov 2021 20:56:37] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42572 - [Sat, 13 Nov 2021 20:56:37] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42574 - [Sat, 13 Nov 2021 20:56:37] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42584 - [Sat, 13 Nov 2021 20:57:16 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42586 - [Sat, 13 Nov 2021 20:57:16 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42588 - [Sat, 13 Nov 2021 20:57:16] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42590 - [Sat, 13 Nov 2021 20:57:16] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42592 - [Sat, 13 Nov 2021 20:57:16] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42594 - [Sat, 13 Nov 2021 20:57:16] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42638 - [Sat, 13 Nov 2021 20:58:44 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42640 - [Sat, 13 Nov 2021 20:58:44 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42642 - [Sat, 13 Nov 2021 20:58:44] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42644 - [Sat, 13 Nov 2021 20:58:44] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42646 - [Sat, 13 Nov 2021 20:58:44] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42648 - [Sat, 13 Nov 2021 20:58:44] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42650 - [Sat, 13 Nov 2021 20:58:44] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42656 - [Sat, 13 Nov 2021 21:00:44 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42658 - [Sat, 13 Nov 2021 21:00:44 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42660 - [Sat, 13 Nov 2021 21:00:44] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42662 - [Sat, 13 Nov 2021 21:00:44] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42664 - [Sat, 13 Nov 2021 21:00:44] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42666 - [Sat, 13 Nov 2021 21:00:44] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42668 - [Sat, 13 Nov 2021 21:00:44] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42670 - [Sat, 13 Nov 2021 21:01:07 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42672 - [Sat, 13 Nov 2021 21:01:07 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42674 - [Sat, 13 Nov 2021 21:01:07] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42676 - [Sat, 13 Nov 2021 21:01:07] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42678 - [Sat, 13 Nov 2021 21:01:07] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42680 - [Sat, 13 Nov 2021 21:01:07] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42682 - [Sat, 13 Nov 2021 21:01:07] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42926 - [Sat, 13 Nov 2021 21:15:57 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42928 - [Sat, 13 Nov 2021 21:15:57 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42930 - [Sat, 13 Nov 2021 21:15:57] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42932 - [Sat, 13 Nov 2021 21:15:57] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42934 - [Sat, 13 Nov 2021 21:15:57] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42936 - [Sat, 13 Nov 2021 21:15:57] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42938 - [Sat, 13 Nov 2021 21:15:57] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42960 - [Sat, 13 Nov 2021 21:16:38 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42962 - [Sat, 13 Nov 2021 21:16:38 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 42964 - [Sat, 13 Nov 2021 21:16:38] "PUT /put.txt HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 42966 - [Sat, 13 Nov 2021 21:16:38] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42968 - [Sat, 13 Nov 2021 21:16:38] "PUT /put.html HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 42970 - [Sat, 13 Nov 2021 21:16:38] "PUT /put.py HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 42972 - [Sat, 13 Nov 2021 21:16:38] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 42974 - [Sat, 13 Nov 2021 21:16:38] "PUT /put.jpeg HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 42976 - [Sat, 13 Nov 2021 21:16:38] "PUT /put.pdf HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 43020 - [Sat, 13 Nov 2021 21:21:24 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43022 - [Sat, 13 Nov 2021 21:21:24 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43024 - [Sat, 13 Nov 2021 21:21:24] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43026 - [Sat, 13 Nov 2021 21:21:24] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43028 - [Sat, 13 Nov 2021 21:21:24] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43030 - [Sat, 13 Nov 2021 21:21:24] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43032 - [Sat, 13 Nov 2021 21:21:24] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43034 - [Sat, 13 Nov 2021 21:21:24] "PUT /put.jpeg HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43036 - [Sat, 13 Nov 2021 21:21:24] "PUT /put.pdf HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43058 - [Sat, 13 Nov 2021 21:21:44 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43060 - [Sat, 13 Nov 2021 21:21:44 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43062 - [Sat, 13 Nov 2021 21:21:44] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43064 - [Sat, 13 Nov 2021 21:21:44] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43066 - [Sat, 13 Nov 2021 21:21:44] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43068 - [Sat, 13 Nov 2021 21:21:44] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43070 - [Sat, 13 Nov 2021 21:21:44] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43072 - [Sat, 13 Nov 2021 21:21:44] "PUT /put.jpeg HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43074 - [Sat, 13 Nov 2021 21:21:44] "PUT /put.pdf HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43076 - [Sat, 13 Nov 2021 21:21:44] "PUT /put.odt HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 43092 - [Sat, 13 Nov 2021 21:23:01 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43094 - [Sat, 13 Nov 2021 21:23:01 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43096 - [Sat, 13 Nov 2021 21:23:01] "PUT /put.txt HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 43098 - [Sat, 13 Nov 2021 21:23:01] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43100 - [Sat, 13 Nov 2021 21:23:01] "PUT /put.html HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 43102 - [Sat, 13 Nov 2021 21:23:01] "PUT /put.py HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 43104 - [Sat, 13 Nov 2021 21:23:01] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43106 - [Sat, 13 Nov 2021 21:23:01] "PUT /put.jpeg HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 43108 - [Sat, 13 Nov 2021 21:23:01] "PUT /put.pdf HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 43110 - [Sat, 13 Nov 2021 21:23:01] "PUT /put.odt HTTP/1.1" 201 0 python-requests/2.22.0
+127.0.0.1 43316 - [Sat, 13 Nov 2021 21:31:55 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43318 - [Sat, 13 Nov 2021 21:31:55 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43320 - [Sat, 13 Nov 2021 21:31:55] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43322 - [Sat, 13 Nov 2021 21:31:55] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43324 - [Sat, 13 Nov 2021 21:31:55] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43326 - [Sat, 13 Nov 2021 21:31:55] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43328 - [Sat, 13 Nov 2021 21:31:55] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43330 - [Sat, 13 Nov 2021 21:31:55] "PUT /put.jpeg HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43332 - [Sat, 13 Nov 2021 21:31:55] "PUT /put.pdf HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43334 - [Sat, 13 Nov 2021 21:31:55] "PUT /put.odt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43346 - [Sat, 13 Nov 2021 21:32:51 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43348 - [Sat, 13 Nov 2021 21:32:51 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43350 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43352 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43354 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43356 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43358 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43360 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.jpeg HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43362 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.pdf HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43364 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.odt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43366 - [Sat, 13 Nov 2021 21:32:51] "PUT /readonly.txt HTTP/1.1" 405 0 python-requests/2.22.0
+127.0.0.1 43368 - [Sat, 13 Nov 2021 21:32:51] "PUT /put.jpeg HTTP/1.1" 415 0 python-requests/2.22.0
+127.0.0.1 43636 - [Sat, 13 Nov 2021 21:50:28 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43638 - [Sat, 13 Nov 2021 21:50:28 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43640 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43642 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43644 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43646 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43648 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43650 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.jpeg HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43652 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.pdf HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43654 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.odt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43656 - [Sat, 13 Nov 2021 21:50:28] "PUT /readonly.txt HTTP/1.1" 405 0 python-requests/2.22.0
+127.0.0.1 43658 - [Sat, 13 Nov 2021 21:50:28] "PUT /put.jpeg HTTP/1.1" 415 0 python-requests/2.22.0
+127.0.0.1 43660 - [Sat, 13 Nov 2021 21:50:53 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43662 - [Sat, 13 Nov 2021 21:50:53 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43664 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43666 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43668 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43670 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43672 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43674 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.jpeg HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43676 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.pdf HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43678 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.odt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43680 - [Sat, 13 Nov 2021 21:50:53] "PUT /readonly.txt HTTP/1.1" 405 0 python-requests/2.22.0
+127.0.0.1 43682 - [Sat, 13 Nov 2021 21:50:53] "PUT /put.jpeg HTTP/1.1" 415 0 python-requests/2.22.0
+127.0.0.1 43688 - [Sat, 13 Nov 2021 21:51:21 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43690 - [Sat, 13 Nov 2021 21:51:21 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43692 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43694 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43696 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43698 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43700 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43702 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.jpeg HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43704 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.pdf HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43706 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.odt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43708 - [Sat, 13 Nov 2021 21:51:21] "PUT /readonly.txt HTTP/1.1" 405 0 python-requests/2.22.0
+127.0.0.1 43710 - [Sat, 13 Nov 2021 21:51:21] "PUT /put.jpeg HTTP/1.1" 415 0 python-requests/2.22.0
+127.0.0.1 43756 - [Sat, 13 Nov 2021 21:53:19 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43758 - [Sat, 13 Nov 2021 21:53:19 GMT] "DELETE /delete2.html HTTP/1.1" 404 332 python-requests/2.22.0
+127.0.0.1 43760 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43762 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.txt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43764 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.html HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43766 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43768 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.py HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43770 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.jpeg HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43772 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.pdf HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43774 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.odt HTTP/1.1" 204 0 python-requests/2.22.0
+127.0.0.1 43776 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /readonly.txt HTTP/1.1" 405 0 python-requests/2.22.0
+127.0.0.1 43778 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.jpeg HTTP/1.1" 415 0 python-requests/2.22.0
+127.0.0.1 43780 - [Sat, 13 Nov 2021 21:53:19 GMT] "PUT /put.txt HTTP/1.1" 412 0 python-requests/2.22.0

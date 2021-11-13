@@ -2,6 +2,8 @@ import requests
 from datetime import datetime
 from datetime import timedelta
 from methods import KeepAlive,port
+import mimetypes
+import os,time
 request_url = 'http://127.0.0.1:'+str(port)
 
 
@@ -219,16 +221,82 @@ def DELETE_TEST_CASE_1():
     log_response(response)
     return
 #201, 204 for sample .txt .html plain  files
+#first two cases files exists and overwritten by put and next two cases are files not exists , created.
 def PUT_TEST_CASE_1():
+    #201 for creating file
+    file_1 = 'httpfiles/111903007.txt'
+    f_open = open(file_1,'r')
+    read_data = f_open.read()
+    headers_list={'Content-Type':'text/plain'}
+    response = requests.put(request_url+'/put.txt',data = read_data,headers=headers_list)
+    log_response(response)
+    #204 : file is already created
+    read_data = "This data will overwrite existing file data\nMIS:111903007\nName:AbhishekDharmadhikari"
+    response = requests.put(request_url+'/put.txt',data = read_data,headers=headers_list)
+    log_response(response)
+    #text/html:
+    headers_list= {'Content-Type':'text/html'}
+    content = '<html>\n<head>\n\t<title>Abhishek_Server</title>\n</head>\n<body>\n<h1>HTMl content uploaded in file</h1>\n</body>\n</html>'
+    response = requests.put(request_url+'/put.html',data = content, headers=headers_list)
+    log_response(response)
+    #python file:text/x-python(uploading assignemnt:packetsniffer.py in PUT folder)
+    py_file = 'httpfiles/mysniffer.py'
+    headers_list = {'Content-Type':mimetypes.guess_type('new.py')[0]}
+    content = open(py_file,'r').read()
+    response = requests.put(request_url+'/put.py',data = content, headers=headers_list)
+    log_response(response)
+    headers_list['Content-Type']='application/octet-stream'
+    content = open('functions.py','r').read()
+    response = requests.put(request_url+'/put.py',data = content, headers=headers_list)
+    log_response(response)
     return
-#201 204 for differnet media
+#201 204 for uploading different media
+#image jpeg png css 
 def PUT_TEST_CASE_2():
+    #uploading image : jpeg
+    file_1 = 'httpfiles/download.jpeg'
+    read_data = open(file_1,'rb').read()
+    headers_list={'Content-Type':mimetypes.guess_type(file_1)[0]}
+    response = requests.put(request_url+'/put.jpeg',data = read_data,headers=headers_list)
+    log_response(response)
+    #uploading pdf
+    file_1 = 'httpfiles/Result.PDF'
+    headers_list={'Content-Type':mimetypes.guess_type(file_1)[0]}
+    content = open(file_1,'rb').read()
+    response = requests.put(request_url+'/put.pdf',data = content, headers=headers_list)
+    log_response(response)
+    #uploading odt file
+    py_file = 'httpfiles/wireshark.odt'
+    headers_list = {'Content-Type':mimetypes.guess_type(py_file)[0]}
+    content = open(py_file,'rb').read()
+    response = requests.put(request_url+'/put.odt',data = content, headers=headers_list)
+    log_response(response)
     return
-#possible errors like 400,403,405,415 : media not supported
+
+#possible errors like 405,415: media not supported error ,412
+#trying to write in read only file
 def PUT_TEST_CASE_3():
-    return
-#put with conditional headers
-def PUT_TEST_CASE_4():
+    #405 status_code
+    read_data = 'This will not be written in file as it is readonly'
+    headers_list={'Content-Type':'text/plain'}
+    response = requests.put(request_url+'/readonly.txt',data = read_data,headers=headers_list)
+    log_response(response)
+    #415 status code
+    read_data = open('httpfiles/download.jpeg','rb').read()
+    headers_list={'Content-Type':'text/plain'}
+    response = requests.put(request_url+'/put.jpeg',data = read_data,headers=headers_list)
+    log_response(response)
+
+    #if-unmodified-since:
+    modifiedTime = os.path.getmtime('PUT/put.txt')
+    last_modified = time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.localtime(modifiedTime))
+    format1 = '%a, %d %b %Y %H:%M:%S GMT'
+    date = datetime.strptime(last_modified,format1) - timedelta(seconds=30)#added 30 secs to date
+    headers_list['If-Unmodified-Since'] = date.strftime(format1)
+    headers_list['Content-Type']='text/plain'
+    data = 'This data will not be uploaded for sure as test case is expected to return 412 status code'
+    response = requests.put(request_url+'/put.txt',data = read_data,headers=headers_list)
+    log_response(response)
     return
 def POST_TEST_CASE_1():
     return
@@ -264,7 +332,9 @@ get_TEST_CASE_6()
 
 HEAD_TEST_CASE_1()
 HEAD_TEST_CASE_2()
-
+'''
 print(KeepAlive)
 DELETE_TEST_CASE_1()
-'''
+PUT_TEST_CASE_1()
+PUT_TEST_CASE_2()
+PUT_TEST_CASE_3()
