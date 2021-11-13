@@ -125,7 +125,7 @@ def construct_get_head_response(request,method):
 
     #all headers in seperate dictionary
     #accpet-ranges:bytes means server can send partial request  we can say that Accept-ranges:None
-    response_headers={"Location: ":"","Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-ranges: ":"bytes"}
+    response_headers={"Location: ":"","Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-Ranges: ":"bytes"}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
     entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-MD5: ":"","Content-Language":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
 
@@ -220,15 +220,16 @@ def construct_get_head_response(request,method):
             last_mod_date = datetime.strptime(entity_headers['Last-Modified: '],format1)
             if(if_date < last_date):
                 status_code = '200'
-                request.request_headers['Range: ']='bytes=0-'
+                del request.request_headers['Range: ']
             else:
                 status_code = '206'
         else:
             if(if_range == response_headers['Etag: ']):
                 status_code = '206'
             else:
-                staus_code = '200'#send full resource with 200 
-                request.request_headers['Range: ']='bytes=0-'
+                print('<--------------------------------------------------------->')
+                status_code = '200'#send full resource with 200 
+                del request.request_headers['Range: ']
 
     #Range header:related RFC : 7233
     #related status_code : 200,206,416
@@ -286,7 +287,7 @@ def construct_get_head_response(request,method):
     #if ("Accept: " in request.request_headers.keys() and status_code in ['206','200']):
     if ("Accept-Encoding: " in request.request_headers.keys() and status_code in ['200','206']):
         actual_types= request.request_headers['Accept-Encoding: ']
-        if(actual_types!=' '):
+        if(actual_types!=' ' or actual_types!=''):
             actual_types= actual_types.split(',')
             encoding = {}
             #content-negotiation algorithm(choose best content_encoding_type)
@@ -388,13 +389,11 @@ def construct_get_head_response(request,method):
 
     elif(status_code=='200'):
         #you can use identity as well 
-        print("Choose deflat,gzip or .....")
         print(path)
         f_open=open(path,"rb")
         response_body = f_open.read()
-        response_body = gzip.compress(response_body)
         print("Else format")
-        entity_headers['Content-Encoding: '] = 'gzip'
+        entity_headers['Content-Encoding: '] = 'identity'
         entity_headers['Content-Type: ']=mimetypes.guess_type(path)[0]
         entity_headers['Content-Length: ']=str(len(response_body))
         f_open.close()
@@ -525,7 +524,7 @@ def construct_post_response(request):
     folder_path = 'POST'+folder_name
     #u allow for 405 is method not allowed as folder is not there
     #https://stackoverflow.com/questions/35083139/why-does-post-request-return-404
-    if(not os.path.isdir(folder_path)):
+    if(not os.path.isdir(folder_path) or os.path.isfile(folder_path)):
         status_code = '404'
     else:
         status_code = '204'
@@ -693,7 +692,7 @@ def construct_put_response(request):
     if ("If-None-Match: " in request.request_headers.keys() and status_code =='204'):
         status_code = '412'
     content_type_file_path = mimetypes.guess_type(file_path)[0]
-    if(content_type_file_path == request.request_headers['Content-Type: '] and status_code in ['201','204']):
+    if(content_type_file_path == request.request_headers['Content-Type: '] and status_code in ['201','204'])or(request.request_headers['Content-Type: ']=='application/octet-stream'):
         try:
             file_open = open(file_path,"wb")
             file_open.write(request.message_body)

@@ -1,16 +1,12 @@
 from socket import *
-import sys
 from datetime import date
 from methods import *
 import threading
 host = '127.0.0.1' # address for our server
-try:
-    port = int(sys.argv[1])# port for our server
-except:
-    port = 12000
 serverSocket = socket(AF_INET, SOCK_STREAM)
-serverSocket.bind((host, port))
+#IMPORTANT NOTE: sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) works, BUT you should use that right after you create the socket. It will not work after .bind()! –
 serverSocket.setsockopt(SOL_SOCKET,SO_REUSEADDR, 1)
+serverSocket.bind((host, int(port)))
 
 serverSocket.listen(4)
 print(KeepAlive,port,TimeOut,MaxKeepAliveRequests,KeepAliveTimeout,MaxSimultaneousConnection)
