@@ -4,15 +4,15 @@ from datetime import timedelta
 from methods import KeepAlive,port
 import mimetypes
 import os,time
+import threading
+from socket import *
 request_url = 'http://127.0.0.1:'+str(port)
 
-
 def log_response(response):
-    #print('Request_headers: ',response.request.headers)
+    print('Request_headers: ',response.request.headers)
     print('Response : Status_code:',response.status_code)
-    #print('Response_headers: ',response.headers)
-    #print('Response_COntent: ',response.content)
-    print()
+    print('Response_headers: ',response.headers)
+    print('********************************************************')
     return
 
 #status_code : 200 + 404
@@ -29,10 +29,21 @@ def get_TEST_CASE_2():
     headers_list = {'Accept-Encoding':'deflate'}
     response = requests.get(request_url+'/download.jpeg',headers = headers_list)
     log_response(response)
+    o=open('testing/download.jpeg','wb')
+    o.write(response.content)
+    o.close()
+
     response = requests.get(request_url+'/function.png',headers = headers_list)
     log_response(response)
+    o=open('testing/function.png','wb')
+    o.write(response.content)
+    o.close()
+
     response = requests.get(request_url+'/Result.PDF',headers = headers_list)
     log_response(response)
+    o=open('testing/result.PDF','wb')
+    o.write(response.content)
+    o.close()
     return
 
 #All conditional headers: If match , if unmodified since, If none match , If unmodified since
@@ -54,9 +65,10 @@ def get_TEST_CASE_3():
 
     #If-Unmodifed-Since, take last modified date obtained in above response (1) 200 status code
     last_modified = response.headers['Last-Modified']
-    format1 = '%a, %d %b %Y %H:%M:%S GMT'
+    format1 = '%a, %d %b %Y %H:%M:%S %Z'
     date = datetime.strptime(last_modified,format1) + timedelta(seconds=30)#added 30 secs to date
-    headers_list['If-Unmodified-Since'] = date.strftime(format1)
+    print(date.strftime(format1))
+    headers_list['If-Unmodified-Since'] = date.strftime(format1)+' GMT'
     response = requests.get(request_url+'/sample.txt',headers = headers_list)
     log_response(response)
     #modify that file and then pass same modified date in header value , it should give 412 error
@@ -83,6 +95,7 @@ def get_TEST_CASE_3():
     response = requests.get(request_url+'/sample.txt',headers = headers_list)
     log_response(response)
     del headers_list['If-None-Match']
+
     #If-Modified Since:(1)200 status code 
     headers_list['If-Modified-Since'] = last_modified
     response = requests.get(request_url+'/sample.txt',headers = headers_list)
@@ -113,9 +126,7 @@ def get_TEST_CASE_4():
 
 #Range header for single range request: 206 + 416 error(for invalid single range) + accept encoding(content-negotiation)
 #single range
-#Range: <unit>=<range-start>-
-#Range: <unit>=<range-start>-<range-end>
-#Range: <unit>=-<suffix-length>
+#Range: <unit>=<range-start>- or  <unit>=<range-start>-<range-end> or unit>=-<suffix-length>
 def get_TEST_CASE_5():
     #byte range:200-
     headers_list = {'Accept-Encoding':'gzip;q=0.5,deflate,br;q=0.9','Range':'bytes=200-'}
@@ -139,7 +150,6 @@ def get_TEST_CASE_5():
     return
 
 #Range: <unit>=<range-start>-<range-end>, <range-start>-<range-end>
-#Range: <unit>=<range-start>-<range-end>, <range-start>-<range-end>, <range-start>-<range-end>
 #Range header : multiple ranges (for different types of media) + invalid ranges + if range header
 def get_TEST_CASE_6():
     #get request for content-length which will be used as header in further test case
@@ -155,7 +165,7 @@ def get_TEST_CASE_6():
     response = requests.get(request_url+'/index.html',headers = headers_list)
     log_response(response)
     #all invalid ranges(416 error)
-    headers_list = {'Accept-Encoding':'','Range':'bytes=123-23,'+'-'+content_length+','+content_length+'-'}
+    headers_list = {'Accept-Encoding':'gzip','Range':'bytes=123-23,'+'-'+content_length+','+content_length+'-'}
     response = requests.get(request_url+'/index.html',headers = headers_list)
     log_response(response)
     Etag = response.headers['Etag']
@@ -169,7 +179,7 @@ def get_TEST_CASE_6():
     log_response(response)
     #if-range gives date format: 200 status code expected not 206 as full resource should be sent
     last_modified = response.headers['Last-Modified']
-    format1 = '%a, %d %b %Y %H:%M:%S GMT'
+    format1 = '%a, %d %b %Y %H:%M:%S %Z'
     date = datetime.strptime(last_modified,format1) - timedelta(seconds=30)
     headers_list['If-Range'] = date.strftime(format1)
     response = requests.get(request_url+'/index.html',headers = headers_list)
@@ -197,7 +207,7 @@ def HEAD_TEST_CASE_1():
     response = requests.head(request_url+'/index.html',headers = headers_list)
     log_response(response)
     return
-#406,412(Accept encoding + condtional headers) 
+#406,412(Accept encoding + conditional headers) 
 def HEAD_TEST_CASE_2():
     headers_list = {'Accept-Encoding':'br'}
     response = requests.head(request_url+'/sample.txt',headers = headers_list)
@@ -291,10 +301,10 @@ def PUT_TEST_CASE_3():
 
     #if-unmodified-since:
     modifiedTime = os.path.getmtime('PUT/put.txt')
-    last_modified = time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.localtime(modifiedTime))
-    format1 = '%a, %d %b %Y %H:%M:%S GMT'
+    last_modified = time.strftime('%a, %d %b %Y %H:%M:%S %Z', time.gmtime(modifiedTime))
+    format1 = '%a, %d %b %Y %H:%M:%S %Z'
     date = datetime.strptime(last_modified,format1) - timedelta(seconds=30)#added 30 secs to date
-    headers_list['If-Unmodified-Since'] = date.strftime(format1)
+    headers_list['If-Unmodified-Since'] = date.strftime(format1) +' GMT'
     headers_list['Content-Type']='text/plain'
     data = 'This data will not be uploaded for sure as test case is expected to return 412 status code'
     response = requests.put(request_url+'/put.txt',data = read_data,headers=headers_list)
@@ -348,45 +358,141 @@ def POST_TEST_CASE_2():
     log_response(response)
     return
 
-#content-type multiform/byetranges + uploading different types of media 
+#Handling folder permissions: 403,405,404 status_code
 def POST_TEST_CASE_3():
-    #404_status_
+    #404_status
     content = {'MIS_NO':'111903007','College':'COEP'}
     files_list = {'file':open('testing/sample_post_form.html','rb')}
     response = requests.post('http://127.0.0.1:12001/test_3',files=files_list, data=content)
     log_response(response)
-    #405 status:
-    response = requests.post('http://127.0.0.1:12001/test_2/sample_post_test.py',files=files_list, data=content)
+    #405 status
+    response = requests.post('http://127.0.0.1:12001/test_2/access.log',files=files_list, data=content)
+    log_response(response)
+    #403 status:
+    response = requests.post('http://127.0.0.1:12001/read_only_folder/',files=files_list, data=content)
     log_response(response)
     return
 
-def PER_NON_PERSISTENT_TEST_CASE():
-    return
-def MAX_REQUEST_PER_CLIENT_TEST_CASE():
-    return
-def MAX_SIMULTANEOUS_CONN_TEST_CASE():
-    return
-def SYNTAX_ERROR_TEST_CASE():
-    return
-def SERVER_ERROR_TEST_CASE():
+#400, 501, 505 
+def SYNTAX_SERVER_ERROR_TEST_CASE():
+    s = socket(AF_INET, SOCK_STREAM)
+    s.connect(('127.0.0.1', 12001))
+    message = "OPTIONS / HTTP/1.1\r\n"
+    message += "HOST: 127.0.0.1:12001\r\n"
+    message += "User-Agent: Abhishek\r\n"
+    message += "\r\n"
+    s.send(message.encode())
+    message = s.recv(1024).decode()
+    print(message)
+    s.close()
+    s = socket(AF_INET, SOCK_STREAM)
+    s.connect(('127.0.0.1', 12001))
+    message = "GET / HTTP/2.0\r\n"
+    message += "HOST: 127.0.0.1:12001\r\n"
+    message += "User-Agent: Abhishek\r\n"
+    message += "\r\n"
+    s.send(message.encode())
+    message = s.recv(1024).decode()
+    print(message)
+    s = socket(AF_INET, SOCK_STREAM)
+    s.connect(('127.0.0.1', 12001))
+    message = "GET / HTTP/1.1\r\n"
+    message += "HOST: 127.0.0.1:12001Hmmmmm\r\n"
+    message += "User-Agent: Abhishek\r\n"
+    message += "\r\n"
+    s.send(message.encode())
+    message = s.recv(1024).decode()
+    print(message)
+
     return
 
-get_TEST_CASE_1()
-get_TEST_CASE_2()
-get_TEST_CASE_3()
-get_TEST_CASE_4()
-get_TEST_CASE_5()
-get_TEST_CASE_6()
+def multithreading_GET_TEST_CASE():
+    threads=[]
+    th1 = threading.Thread(target=get_TEST_CASE_1, args=())
+    th1.start()
+    threads.append(th1)
+    th2 = threading.Thread(target=get_TEST_CASE_2, args=())
+    th2.start()
+    threads.append(th2)
+    th3 = threading.Thread(target=get_TEST_CASE_3, args=())
+    th3.start()
+    threads.append(th3)
+    th4= threading.Thread(target=get_TEST_CASE_4, args=())
+    th4.start()
+    threads.append(th4)
+    th5= threading.Thread(target=get_TEST_CASE_5, args=())
+    th5.start()
+    threads.append(th5)
+    th6 = threading.Thread(target=get_TEST_CASE_6, args=())
+    th6.start()
+    threads.append(th6)
+    for i in range(6):
+        threads[i].join()	
+    print('Get Testing done')
+    return
 
-HEAD_TEST_CASE_1()
-HEAD_TEST_CASE_2()
+def multithreading_HEAD_DELETE_TEST_CASE():
+    threads=[]
+    th1 = threading.Thread(target=HEAD_TEST_CASE_1, args=())
+    th1.start()
+    threads.append(th1)
+    th2 = threading.Thread(target=HEAD_TEST_CASE_2, args=())
+    th2.start()
+    threads.append(th2)
+    th3 = threading.Thread(target=DELETE_TEST_CASE_1, args=())
+    th3.start()
+    threads.append(th3)
+    for i in range(3):
+        threads[i].join()
+    print('Get Testing done')
+    return
 
-DELETE_TEST_CASE_1()
+#max requests sent by client
+def PERSISTENT_TEST_CASE():
+    s = requests.Session()
+    headers_list = {'Accept-Encoding':'deflate;q=0.9,br;q=0.6','Range':'bytes=0-300'}
+    try:
+        response = s.get(request_url+'/', headers = headers_list)
+        log_response(response)
+        o=open('testing/index.html','a')
+        o.write(response.content.decode())
+        o.close()
+        headers_list['Range']='bytes=0-'
+        response = s.head(request_url+'/index23.html',headers = headers_list)
+        log_response(response)
+        response = s.delete(request_url+'/new.jpeg')
+        log_response(response)
+        response = s.get(request_url+'/function.png',headers = headers_list)
+        log_response(response)
+        response = s.get(request_url+'/Result.PDF',headers = headers_list)
+        log_response(response)
+        response = s.head(request_url+'/index23.html',headers = headers_list)
+        log_response(response)
+    except requests.exceptions.ConnectionError:
+        print("Max connection Count reached or server is not started yet")
+    return
+    #as in conf file I set 5 request per connection are allowed so when I send 6th request on the same connection it will raise error
 
-PUT_TEST_CASE_1()
-PUT_TEST_CASE_2()
-PUT_TEST_CASE_3()
+if KeepAlive == 'Off':
+    try:
+        #get_TEST_CASE_1()
+        get_TEST_CASE_2()
+        '''
+        get_TEST_CASE_3()
+        get_TEST_CASE_4()
+        get_TEST_CASE_5()
+        get_TEST_CASE_6()
+        PUT_TEST_CASE_1()
+        PUT_TEST_CASE_2()
+        PUT_TEST_CASE_3()
+        POST_TEST_CASE_1()
+        POST_TEST_CASE_2()
+        POST_TEST_CASE_3()
+        SYNTAX_SERVER_ERROR_TEST_CASE()
+        multithreading_HEAD_DELETE_TEST_CASE()
 
-POST_TEST_CASE_1()
-POST_TEST_CASE_2()
-POST_TEST_CASE_3()
+        '''
+    except requests.exceptions.ConnectionError:
+        print("Server is not running")
+else:
+        PERSISTENT_TEST_CASE()

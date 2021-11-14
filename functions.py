@@ -24,8 +24,6 @@ response_phrase = {
 
 def get_date():
     date = time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.gmtime())
-    #time_1 = datetime.now()
-    #date = time_1.strftime("%a, %d %b %Y %H:%M:%S")
     return date
 
 def get_last_modified_time(file_path):
@@ -49,12 +47,15 @@ def response_body_for_206(path,range_start,range_end):
     response = read[int(range_start):int(range_end)+1]
     return response
 
+#Etag generation using hashing technique  
+#ref:https://www.pythoncentral.io/hashing-files-with-python/
+#hashing using hashlib (Here used MD5 hash technique),if file exists calculate ETag and last modified date 
 def calculate_ETAG(file_path):
     body = read_file(file_path)
     hasher = hashlib.md5()
     hasher.update(body)
     return hasher.hexdigest()
-#def get_date in specifed format
+
 #interval should be strictly increasing for non overlapping
 def overlapping_interval(interval):
     for i in range(len(interval)-1):
@@ -76,7 +77,6 @@ def build_response_headers(response_headers,general_headers,entity_headers):
             continue
     for key in entity_headers.keys():
         if(entity_headers[key]!=''):
-            #print(type(entity_headers[key]),type(key),key,entity_headers[key],key)
             response +=key+entity_headers[key]+'\r\n'
         else:
             continue

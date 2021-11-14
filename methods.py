@@ -41,7 +41,6 @@ port = config['PORT_NUMBER']['PortNumber']
 
 class request:
     def __init__(self,http_request):
-        print(http_request)
         self.http_request = http_request
         return
     #request_line = method space Request-URL space HTTP-version CRLF
@@ -110,7 +109,6 @@ class request:
             find_client =self.client_ip+':'+str(self.client_port)
             cookie_line = self.client_ip+':'+str(self.client_port)+' '+self.cookie_name + self.cookie_value + ' request_count:'
             if(read_file.find(find_client)!=-1):
-                print("HHI")
                 cookie_file = open('cookies.log','w')
                 index=read_file.find(find_client)
                 content_before = read_file[:index]
@@ -129,6 +127,7 @@ class request:
                 cookie_line = self.client_ip+':'+str(self.client_port)+' '+self.cookie_name + self.cookie_value + ' request_count:1\n'
                 cookie_file.write(cookie_line)
                 cookie_file.close()
+        self.cookie = self.cookie_name +'=' +self.cookie_value
         return
 
     def parse_request(self,connectionSocket,client_address):
@@ -154,9 +153,9 @@ def construct_get_head_response(request,method):
 
     #all headers in seperate dictionary
     #accpet-ranges:bytes means server can send partial request  we can say that Accept-ranges:None
-    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-Ranges: ":"bytes","Set-Cookie: ":""}
-    general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
-    entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
+    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-Ranges: ":"bytes","Set-Cookie: ":request.cookie}
+    general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":"",}
+    entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-Location: ":"","Expires: ":"Sun, 26 Nov 2021 08:31:30 GMT","Last-Modified: ":"" }
 
     #assuming 200 status code initially
     status_code = '200'
@@ -168,10 +167,11 @@ def construct_get_head_response(request,method):
     response = ""
 
     #check if Host-header in request 
-    if('Host: ' not in request.request_headers.keys()):
+    if('Host: ' not in request.request_headers.keys() or request.request_headers['Host: ']!='127.0.0.1:12001'):
         status_code = '400'
     #check if HTTP version is supported 
     if(request.http_version!='HTTP/1.1'):
+        logger.error_log(request,"","",get_date(),"HTTP Version Not supported!")
         status_code = '505'
     #NOTE:itha syntax chukla tar 400 error    
     #check if requested URI exists or not
@@ -180,19 +180,20 @@ def construct_get_head_response(request,method):
     else:
         path = DocumentRoot + request.request_URI
 
-    #Etag generation using hashing technique  
-    #ref:https://www.pythoncentral.io/hashing-files-with-python/
-    #hashing using hashlib (Here used MD5 hash technique),if file exists calculate ETag and last modified date 
+    #Etag generation using hashing technique
     if(os.path.exists(path)):
-        response_headers['Etag: '] = calculate_ETAG(path)
-        entity_headers['Last-Modified: ']= get_last_modified_time(path)
-        last_modified = entity_headers['Last-Modified: ']
+        if(not os.path.isdir(path)):
+            response_headers['Etag: '] = calculate_ETAG(path)
+            entity_headers['Last-Modified: ']= get_last_modified_time(path)
+            last_modified = entity_headers['Last-Modified: ']
+        else:
+            status_code='403'
     else:
         status_code = '404'
 
     #Implementation of all conditional headers:
     #sequence of evaluation of conditional requests as per mentioned in RFC 7232,ifmatch->ifunmodified-since->ifNonematch,if-unmodifiedsince->if range
-    #https://docs.w3cub.com/http/rfc7232#section-5
+    #https://docs.w3cub.com/http/rfc7232#section-5 
     #status codes related to conditional headers are: 304,412
     if("If-Match: " in request.request_headers.keys() and status_code == '200'):
         if_match = request.request_headers['If-Match: '].split(',')
@@ -206,10 +207,10 @@ def construct_get_head_response(request,method):
         format1 = '%a, %d %b %Y %H:%M:%S %Z'
         if_date= datetime.strptime(date1, format1)
         last_date = datetime.strptime(last_modified,format1)
-        print(if_date,'<--',last_date)
         curr_date =  datetime.strptime(general_headers['Date: '],format1)
         if if_date > curr_date:
-            print('Invalid Date in header.Ignore header!')
+            logger.error_log(request,"","",get_date(),"Invalid date in Conditional header!")
+            pass
         elif if_date < last_date:
             status_code = '412'
         else:
@@ -228,9 +229,9 @@ def construct_get_head_response(request,method):
         if_date= datetime.strptime(date1, format1)
         last_date = datetime.strptime(last_modified,format1)
         curr_date =  datetime.strptime(general_headers['Date: '],format1)
-        print(if_date,'----',last_date,'-------',curr_date)
         if if_date > curr_date:
-            print('Invalid Date in header.Ignore this header!')
+            logger.error_log(request,"","",get_date(),"Invalid date in Conditional header!")
+            pass
         elif if_date < last_date:
             status_code = '200'
         else:
@@ -305,7 +306,6 @@ def construct_get_head_response(request,method):
         else:
             status_code = '206'
         
-    #if ("Accept: " in request.request_headers.keys() and status_code in ['206','200']):
     if ("Accept-Encoding: " in request.request_headers.keys() and status_code in ['200','206']):
         actual_types= request.request_headers['Accept-Encoding: ']
         if(actual_types!=' ' or actual_types!=''):
@@ -398,7 +398,6 @@ def construct_get_head_response(request,method):
                     partial_header +='Content-Range: '+'bytes ' + range_start + '-' + range_end +'/' +str(file_size) + '\r\n'
                     partial_header +='Content-Length: '+str(len(response_1))+'\r\n'
                     partial_body= boundary + partial_header
-                    #print(partial_body)
                     response_body = response_body + partial_body.encode() + response_1
                     
                 if(status_code!='406'):
@@ -441,6 +440,8 @@ def construct_get_head_response(request,method):
     else:
         general_headers['Connection: '] = 'Close'
 
+    if status_code[0] == '4':
+        logger.error_log(request,status_code,response_phrase[status_code],general_headers['Date: '],"Client-Error:4xx")
     if status_code in ['400','403','404','406','405','416']:
         file_path = 'httpfiles/'+status_code + '.html'
         response_body = read_file(file_path)
@@ -474,15 +475,15 @@ def construct_head_response(request):
 
 #link:https://stackoverflow.com/questions/17884469/what-is-the-http-response-code-for-failed-http-delete-operation
 def construct_delete_response(request):
-    response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":""}
+    response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":request.cookie}
     general_headers={"Date: ":"","Connection: ":""}
-    entity_headers = {"Content-Type: ":"","Content-Length: ":""}
+    entity_headers = {"Content-Type: ":"","Content-Length: ":"","Expires: ":"Sun, 26 Nov 2021 08:31:30 GMT"}
     status_code = '200'
     if(request.status_code == '400'):
         status_code = 400
     general_headers['Date: '] =get_date()
 
-    if('Host: ' not in request.request_headers.keys()):
+    if('Host: ' not in request.request_headers.keys() or request.request_headers['Host: ']!='127.0.0.1:12001'):
         status_code = '400'
 
     if(request.request_URI =='/'):
@@ -518,6 +519,9 @@ def construct_delete_response(request):
     else:
         general_headers['Connection: '] = 'Close'
 
+    if status_code[0] == '4':
+        logger.error_log(request,status_code,response_phrase[status_code],general_headers['Date: '],"Client-Error:4xx")
+
     logger.access_log(request,status_code,general_headers['Date: '],entity_headers['Content-Length: '])
 
     response = build_response_headers(response_headers,general_headers,entity_headers)
@@ -529,11 +533,13 @@ def construct_delete_response(request):
 
 #NOTE:ab mode open file(persistent non persistent file)
 def construct_post_response(request):
-    response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":""}
+    response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":request.cookie}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
     entity_headers={"Allow: ":"","Content-Location: ":"","Expires: ":""}
 
     status_code = '200'
+    if('Host: ' not in request.request_headers.keys() or request.request_headers['Host: ']!='127.0.0.1:12001'):
+        status_code = '400'
     general_headers['Date: '] = get_date()
 
     request_body = request.message_body
@@ -550,7 +556,14 @@ def construct_post_response(request):
     else:
         if folder_path[-1]!='/':
             folder_path = folder_path+'/'
-        status_code = '204'
+        #checking if folder is read_only
+        try:
+            f = open(folder_path +'file.txt','a')
+            f.close()
+            os.remove(folder_path+'file.txt')
+            status_code = '204'
+        except PermissionError:
+            status_code = '403'
     file_names = {'text/plain':'index.txt','text/html':'index.html','application/javascript':'index.js','application/json':'index.json'}
     if(content_type == 'application/x-www-form-urlencoded' and status_code=='204'):
         if(not os.path.isfile(folder_path+'post.log')):
@@ -635,7 +648,9 @@ def construct_post_response(request):
         general_headers['Connection: '] = 'Close'
 
     logger.access_log(request,status_code,general_headers['Date: '],'0')
-
+    if status_code[0] == '4':
+        logger.error_log(request,status_code,response_phrase[status_code],general_headers['Date: '],"Client-Error:4xx")
+    
     response = ''
     response = build_response_headers(response_headers,general_headers,entity_headers)
     response_body = b''
@@ -648,7 +663,7 @@ def construct_post_response(request):
 #conditonal headers : https://www.w3.org/1999/04/Editing/#3.1
 #NOTE:PAth is directory for python or conmtent-type is application/loctetstream
 def construct_put_response(request):
-    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":""}
+    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":request.cookie}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":"","Location: ":""}
     entity_headers={"Allow: ":"","Content-Type: ":"","Content-Length: ":"","Expires: ":"","Last-Modified: ":""}
     
@@ -681,7 +696,8 @@ def construct_put_response(request):
         last_date = datetime.strptime(last_modified,format1)
         curr_date =  datetime.strptime(general_headers['Date: '],format1)
         if if_date > curr_date:
-            print('Invalid Date in header.Ignore header!')
+            pass
+            #print('Invalid Date in header.Ignore header!')
         elif if_date < last_date:
             status_code = '412'
         else:
@@ -698,7 +714,7 @@ def construct_put_response(request):
             file_open.close()
             response_headers['Etag: '] = calculate_ETAG(file_path)
             entity_headers['Last-Modified: '] = get_last_modified_time(file_path)
-        except:
+        except PermissionError:
             status_code = '405'
             entity_headers['Allow: '] = 'GET,HEAD'
     elif status_code!='412':
@@ -725,6 +741,9 @@ def construct_put_response(request):
     response = status_line + response + '\r\n'
 
     logger.access_log(request,status_code,general_headers['Date: '],'0')
+    
+    if status_code[0] == '4':
+        logger.error_log(request,status_code,response_phrase[status_code],general_headers['Date: '],"Client-Error:4xx")
 
     response_message = response.encode()+response_body
     return response_message
@@ -740,7 +759,18 @@ def construct_response(client_request):
         response = construct_post_response(client_request)
     elif (client_request.request_method == 'PUT'):
         response = construct_put_response(client_request)
+    elif (client_request.status_code == '400'):
+        logger.access_log(client_request,'400',get_date(),'0')
+        logger.error_log(client_request,get_date(),"Invalid syntax")
+        response = 'HTTP/1.1 400 Bad Reqeust\r\n'
+        response += 'Server: HTTP-server/1.2.4(Ubuntu)\r\n'
+        today = get_date()
+        response += 'Date: '+today+'\r\n'
+        response += '\r\n'
+        response = response.encode()
     else:
+        logger.access_log(client_request,'501',get_date(),'0')
+        logger.error_log(client_request,get_date(),"Method Not implemented!")
         response = 'HTTP/1.1 501 NOT implemented\r\n'
         response += 'Server: HTTP-server/1.2.4(Ubuntu)\r\n'
         today = get_date()
