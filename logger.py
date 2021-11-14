@@ -7,7 +7,7 @@ def access_log(request,status_code,date,content_length):
     access_log = config['ACCESSLOG']['AccessLog']
     SP = ' '
     log_line = ''
-    log_line += request.client_ip + SP + str(request.client_port) + SP + '-'
+    log_line += request.client_ip + ':' + str(request.client_port) + SP + '-'
     date_format = '[' + date + ']'
     log_line += SP + date_format
     req_line = request.request_line.strip('\r\n')

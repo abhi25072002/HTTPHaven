@@ -13,6 +13,7 @@ import hashlib
 from functions import *
 import logger
 import configparser
+import string,random
 
 #reading config file 
 config = configparser.ConfigParser()
@@ -92,6 +93,43 @@ class request:
 
     def print_http_request(self):
         print(self.http_request)
+    
+    def set_cookie_for_client(self):
+        self.cookie_name = 'client_cookie:'
+        #for generating random string is ref:https://pynative.com/python-generate-random-string/
+        cookie = string.ascii_letters + string.digits 
+        self.cookie_value= ''.join(random.choice(cookie) for i in range(6))
+        if(not os.path.exists('cookies.log')):
+            cookie_file = open('cookies.log','a')
+            cookie_line = self.client_ip+':'+str(self.client_port)+' '+self.cookie_name + self.cookie_value + ' request_count:1\n'
+            cookie_file.write(cookie_line)
+        else:
+            cookie_file = open('cookies.log','r')
+            read_file = cookie_file.read()
+            cookie_file.close()
+            find_client =self.client_ip+':'+str(self.client_port)
+            cookie_line = self.client_ip+':'+str(self.client_port)+' '+self.cookie_name + self.cookie_value + ' request_count:'
+            if(read_file.find(find_client)!=-1):
+                print("HHI")
+                cookie_file = open('cookies.log','w')
+                index=read_file.find(find_client)
+                content_before = read_file[:index]
+                cookie_line =  read_file[index:].split('\n')[0]
+                content_after = read_file[index:].split('\n')[1:]
+                content_after = "\n".join(content_after)
+                count = cookie_line.split(' request_count:')[1]
+                count = str(int(count)+1)
+                self.cookie_value = cookie_line.split(' request_count:')[0].split(find_client+' '+self.cookie_name)[1]
+                cookie_line = self.client_ip+':'+str(self.client_port)+' '+self.cookie_name + self.cookie_value + ' request_count:'+count+'\n'
+                content = content_before + cookie_line + content_after
+                cookie_file.write(content)
+                cookie_file.close()
+            else:
+                cookie_file = open('cookies.log','a')
+                cookie_line = self.client_ip+':'+str(self.client_port)+' '+self.cookie_name + self.cookie_value + ' request_count:1\n'
+                cookie_file.write(cookie_line)
+                cookie_file.close()
+        return
 
     def parse_request(self,connectionSocket,client_address):
         self.client_ip = client_address[0]
@@ -107,6 +145,7 @@ class request:
                 pass
         except:
             request.status_code = '200'
+        self.set_cookie_for_client()
         return
 
 #response status code Handled in GET : 301,400,404,406,200,505,304,416,412,206
@@ -115,7 +154,7 @@ def construct_get_head_response(request,method):
 
     #all headers in seperate dictionary
     #accpet-ranges:bytes means server can send partial request  we can say that Accept-ranges:None
-    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-Ranges: ":"bytes"}
+    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Accept-Ranges: ":"bytes","Set-Cookie: ":""}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
     entity_headers={"Allow: ":"","Content-Encoding: ":"","Content-Type: ":"","Content-Range: ":"","Content-Length: ":"","Content-Location: ":"","Expires: ":"","Last-Modified: ":"" }
 
@@ -125,7 +164,7 @@ def construct_get_head_response(request,method):
         status_code = request.status_code
 
     #date header
-    general_headers['Date: '] = get_date() + ' GMT'
+    general_headers['Date: '] = get_date()
     response = ""
 
     #check if Host-header in request 
@@ -164,9 +203,10 @@ def construct_get_head_response(request,method):
 
     if ("If-Unmodified-Since: " in request.request_headers.keys() and status_code =='200'):
         date1 = request.request_headers['If-Unmodified-Since: ']
-        format1 = '%a, %d %b %Y %H:%M:%S GMT'
+        format1 = '%a, %d %b %Y %H:%M:%S %Z'
         if_date= datetime.strptime(date1, format1)
         last_date = datetime.strptime(last_modified,format1)
+        print(if_date,'<--',last_date)
         curr_date =  datetime.strptime(general_headers['Date: '],format1)
         if if_date > curr_date:
             print('Invalid Date in header.Ignore header!')
@@ -184,10 +224,11 @@ def construct_get_head_response(request,method):
 
     if ("If-Modified-Since: " in request.request_headers.keys() and status_code =='200'):
         date1 = request.request_headers['If-Modified-Since: ']
-        format1 = '%a, %d %b %Y %H:%M:%S GMT' 
+        format1 = '%a, %d %b %Y %H:%M:%S %Z' 
         if_date= datetime.strptime(date1, format1)
         last_date = datetime.strptime(last_modified,format1)
         curr_date =  datetime.strptime(general_headers['Date: '],format1)
+        print(if_date,'----',last_date,'-------',curr_date)
         if if_date > curr_date:
             print('Invalid Date in header.Ignore this header!')
         elif if_date < last_date:
@@ -202,7 +243,7 @@ def construct_get_head_response(request,method):
 
         if(if_range.find('GMT')!=-1):#that is date is provided in if-range
             date1 = request.request_headers['If-Range: ']
-            format1 = '%a, %d %b %Y %H:%M:%S GMT'
+            format1 = '%a, %d %b %Y %H:%M:%S %Z'
             if_date= datetime.strptime(date1, format1)
             last_mod_date = datetime.strptime(entity_headers['Last-Modified: '],format1)
             if(if_date < last_mod_date):
@@ -433,13 +474,13 @@ def construct_head_response(request):
 
 #link:https://stackoverflow.com/questions/17884469/what-is-the-http-response-code-for-failed-http-delete-operation
 def construct_delete_response(request):
-    response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)"}
+    response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":""}
     general_headers={"Date: ":"","Connection: ":""}
     entity_headers = {"Content-Type: ":"","Content-Length: ":""}
     status_code = '200'
     if(request.status_code == '400'):
         status_code = 400
-    general_headers['Date: '] =get_date()+' GMT'
+    general_headers['Date: '] =get_date()
 
     if('Host: ' not in request.request_headers.keys()):
         status_code = '400'
@@ -488,7 +529,7 @@ def construct_delete_response(request):
 
 #NOTE:ab mode open file(persistent non persistent file)
 def construct_post_response(request):
-    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
+    response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":""}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
     entity_headers={"Allow: ":"","Content-Location: ":"","Expires: ":""}
 
@@ -607,11 +648,11 @@ def construct_post_response(request):
 #conditonal headers : https://www.w3.org/1999/04/Editing/#3.1
 #NOTE:PAth is directory for python or conmtent-type is application/loctetstream
 def construct_put_response(request):
-    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)"}
+    response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":""}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":"","Location: ":""}
     entity_headers={"Allow: ":"","Content-Type: ":"","Content-Length: ":"","Expires: ":"","Last-Modified: ":""}
     
-    general_headers['Date: '] = get_date()+' GMT'
+    general_headers['Date: '] = get_date()
     file_name = request.request_URI
     file_path = PutRoot + file_name
     if(not os.path.exists(PutRoot)):
@@ -635,7 +676,7 @@ def construct_put_response(request):
 
     if ("If-Unmodified-Since: " in request.request_headers.keys() and status_code =='204'):
         date1 = request.request_headers['If-Unmodified-Since: ']
-        format1 = '%a, %d %b %Y %H:%M:%S GMT' # The format
+        format1 = '%a, %d %b %Y %H:%M:%S %Z' # The format
         if_date= datetime.strptime(date1, format1)
         last_date = datetime.strptime(last_modified,format1)
         curr_date =  datetime.strptime(general_headers['Date: '],format1)
@@ -702,7 +743,7 @@ def construct_response(client_request):
     else:
         response = 'HTTP/1.1 501 NOT implemented\r\n'
         response += 'Server: HTTP-server/1.2.4(Ubuntu)\r\n'
-        today = get_date() + ' GMT'
+        today = get_date()
         response += 'Date: '+today+'\r\n'
         response += '\r\n'
         response = response.encode()

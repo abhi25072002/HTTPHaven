@@ -1,4 +1,3 @@
-#jdj
 from datetime import datetime
 import hashlib
 import time
@@ -24,13 +23,14 @@ response_phrase = {
 }
 
 def get_date():
-    time_1 = datetime.now()
-    date = time_1.strftime("%a, %d %b %Y %H:%M:%S")
+    date = time.strftime("%a, %d %b %Y %H:%M:%S %Z", time.gmtime())
+    #time_1 = datetime.now()
+    #date = time_1.strftime("%a, %d %b %Y %H:%M:%S")
     return date
 
 def get_last_modified_time(file_path):
     modifiedTime = os.path.getmtime(file_path)
-    last_modified = time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.localtime(modifiedTime))
+    last_modified = time.strftime('%a, %d %b %Y %H:%M:%S %Z', time.gmtime(modifiedTime))
     return last_modified
 
 #read file in rb mode
@@ -81,4 +81,3 @@ def build_response_headers(response_headers,general_headers,entity_headers):
         else:
             continue
     return response
-
