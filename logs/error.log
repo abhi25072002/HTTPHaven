@@ -1,32 +1,26 @@
-127.0.0.1:49148 - [Sun, 14 Nov 2021 15:58:07 GMT] "GET /index23.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49158 - [Sun, 14 Nov 2021 15:58:07 GMT] "GET /sample.txt HTTP/1.1" 412 Precondition Failed python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49164 - [Sun, 14 Nov 2021 15:58:07 GMT] "GET /sample.txt HTTP/1.1" 412 Precondition Failed python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49178 - [Sun, 14 Nov 2021 15:58:08 GMT] "GET /function.png HTTP/1.1" 406 Not Acceptable python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49180 - [Sun, 14 Nov 2021 15:58:08 GMT] "GET /function.png HTTP/1.1" 406 Not Acceptable python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49188 - [Sun, 14 Nov 2021 15:58:08 GMT] "GET /index.html HTTP/1.1" 416 Range Not satisfiable python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49190 - [Sun, 14 Nov 2021 15:58:08 GMT] "GET /index.html HTTP/1.1" 416 Range Not satisfiable python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49208 - [Sun, 14 Nov 2021 15:58:08 GMT] "DELETE /delete2.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49212 - [Sun, 14 Nov 2021 15:58:08 GMT] "DELETE /delete2.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49214 - [Sun, 14 Nov 2021 15:58:08 GMT] "HEAD /sample.txt HTTP/1.1" 412 Precondition Failed python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49218 - [Sun, 14 Nov 2021 15:58:08 GMT] "HEAD /function.png HTTP/1.1" 406 Not Acceptable python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49226 - [Sun, 14 Nov 2021 15:58:08 GMT] "HEAD /index.html HTTP/1.1" 416 Range Not satisfiable python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49246 - [Sun, 14 Nov 2021 15:58:08 GMT] "PUT /readonly.txt HTTP/1.1" 405 Method Not Allowed python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49248 - [Sun, 14 Nov 2021 15:58:08 GMT] "PUT /put.jpeg HTTP/1.1" 415 Unsupported Media Type python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49250 - [Sun, 14 Nov 2021 15:58:08 GMT] "PUT /put.txt HTTP/1.1" 412 Precondition Failed python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49268 - [Sun, 14 Nov 2021 15:58:09 GMT] "POST /test_3 HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49270 - [Sun, 14 Nov 2021 15:58:09 GMT] "POST /test_2/access.log HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49272 - [Sun, 14 Nov 2021 15:58:09 GMT] "POST /read_only_folder/ HTTP/1.1" 403 Forbidden python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49294 - [Sun, 14 Nov 2021 16:01:19 GMT] "HEAD /index23.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49294 - [Sun, 14 Nov 2021 16:01:19 GMT] "DELETE /new.jpeg HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49346 - [Sun, 14 Nov 2021 16:11:49 GMT] "HEAD /index23.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49346 - [Sun, 14 Nov 2021 16:11:49 GMT] "DELETE /new.jpeg HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
-127.0.0.1:49576 - [] "OPTIONS / HTTP/1.1" Sun, 14 Nov 2021 16:42:19 GMT Method Not implemented! Abhishek 
-127.0.0.1:49654 - [] "OPTIONS / HTTP/1.1" Sun, 14 Nov 2021 16:49:26 GMT Method Not implemented! Abhishek 
-127.0.0.1:49710 - [] "OPTIONS / HTTP/1.1" Sun, 14 Nov 2021 16:53:19 GMT Method Not implemented! Abhishek 
-127.0.0.1:49712 - [Sun, 14 Nov 2021 16:53:19 GMT] "GET / HTTP/2.0"   Abhishek HTTP Version Not supported!
-127.0.0.1:49730 - [] "OPTIONS / HTTP/1.1" Sun, 14 Nov 2021 16:54:42 GMT Method Not implemented! Abhishek 
-127.0.0.1:49732 - [Sun, 14 Nov 2021 16:54:42 GMT] "GET / HTTP/2.0"   Abhishek HTTP Version Not supported!
-127.0.0.1:49734 - [Sun, 14 Nov 2021 16:54:42 GMT] "GET / HTTP/2.0"   Abhishek HTTP Version Not supported!
-127.0.0.1:49742 - [] "OPTIONS / HTTP/1.1" Sun, 14 Nov 2021 16:55:07 GMT Method Not implemented! Abhishek 
-127.0.0.1:49744 - [Sun, 14 Nov 2021 16:55:07 GMT] "GET / HTTP/2.0"   Abhishek HTTP Version Not supported!
-127.0.0.1:49746 - [Sun, 14 Nov 2021 16:55:07 GMT] "GET / HTTP/1.1" 400 Bad Request Abhishek Client-Error:4xx
+127.0.0.1:50128 - [Sun, 14 Nov 2021 17:23:09 GMT] "GET /index23.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50138 - [Sun, 14 Nov 2021 17:23:09 GMT] "GET /sample.txt HTTP/1.1" 412 Precondition Failed python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50144 - [Sun, 14 Nov 2021 17:23:09 GMT] "GET /sample.txt HTTP/1.1" 412 Precondition Failed python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50158 - [Sun, 14 Nov 2021 17:23:10 GMT] "GET /function.png HTTP/1.1" 406 Not Acceptable python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50160 - [Sun, 14 Nov 2021 17:23:10 GMT] "GET /function.png HTTP/1.1" 406 Not Acceptable python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50168 - [Sun, 14 Nov 2021 17:23:10 GMT] "GET /index.html HTTP/1.1" 416 Range Not satisfiable python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50170 - [Sun, 14 Nov 2021 17:23:10 GMT] "GET /index.html HTTP/1.1" 416 Range Not satisfiable python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50202 - [Sun, 14 Nov 2021 17:23:11 GMT] "PUT /readonly.txt HTTP/1.1" 405 Method Not Allowed python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50204 - [Sun, 14 Nov 2021 17:23:11 GMT] "PUT /put.jpeg HTTP/1.1" 415 Unsupported Media Type python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50206 - [Sun, 14 Nov 2021 17:23:11 GMT] "PUT /put.txt HTTP/1.1" 412 Precondition Failed python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50224 - [Sun, 14 Nov 2021 17:23:11 GMT] "POST /test_3 HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50226 - [Sun, 14 Nov 2021 17:23:11 GMT] "POST /test_2/access.log HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50228 - [Sun, 14 Nov 2021 17:23:11 GMT] "POST /read_only_folder/ HTTP/1.1" 403 Forbidden python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50230 - [Sun, 14 Nov 2021 17:23:11 GMT] "OPTIONS / HTTP/1.1" 501 Not implemented Abhishek Method Not implemented!
+127.0.0.1:50232 - [Sun, 14 Nov 2021 17:23:11 GMT] "GET / HTTP/2.0"   Abhishek HTTP Version Not supported!
+127.0.0.1:50234 - [Sun, 14 Nov 2021 17:23:11 GMT] "GET / HTTP/1.1" 400 Bad Request Abhishek Client-Error:4xx
+127.0.0.1:50240 - [Sun, 14 Nov 2021 17:23:11 GMT] "DELETE /delete2.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50244 - [Sun, 14 Nov 2021 17:23:11 GMT] "DELETE /delete2.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50246 - [Sun, 14 Nov 2021 17:23:11 GMT] "HEAD /sample.txt HTTP/1.1" 412 Precondition Failed python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50252 - [Sun, 14 Nov 2021 17:23:11 GMT] "HEAD /function.png HTTP/1.1" 406 Not Acceptable python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50254 - [Sun, 14 Nov 2021 17:23:11 GMT] "HEAD /index.html HTTP/1.1" 416 Range Not satisfiable python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50262 - [Sun, 14 Nov 2021 17:24:37 GMT] "HEAD /index23.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50264 - [Sun, 14 Nov 2021 17:24:37 GMT] "DELETE /new.jpeg HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50270 - [Sun, 14 Nov 2021 17:24:37 GMT] "HEAD /index23.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50280 - [Sun, 14 Nov 2021 17:25:46 GMT] "HEAD /index23.html HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx
+127.0.0.1:50280 - [Sun, 14 Nov 2021 17:25:46 GMT] "DELETE /new.jpeg HTTP/1.1" 404 Not Found python-requests/2.22.0 Client-Error:4xx

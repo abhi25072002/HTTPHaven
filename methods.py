@@ -1,6 +1,3 @@
-'''
-date should be in GMT format
-'''
 from datetime import datetime
 import os
 import time
@@ -147,8 +144,6 @@ class request:
         self.set_cookie_for_client()
         return
 
-#response status code Handled in GET : 301,400,404,406,200,505,304,416,412,206
-#NOTE:if path is directory case not handled for directory for get head delete.
 def construct_get_head_response(request,method):
 
     #all headers in seperate dictionary
@@ -173,7 +168,6 @@ def construct_get_head_response(request,method):
     if(request.http_version!='HTTP/1.1'):
         logger.error_log(request,"","",get_date(),"HTTP Version Not supported!")
         status_code = '505'
-    #NOTE:itha syntax chukla tar 400 error    
     #check if requested URI exists or not
     if(request.request_URI =='/'):
         path = DocumentRoot + '/index.html'
@@ -531,7 +525,6 @@ def construct_delete_response(request):
     response_message+=response_body
     return response_message
 
-#NOTE:ab mode open file(persistent non persistent file)
 def construct_post_response(request):
     response_headers={"Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":request.cookie}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":""}
@@ -661,7 +654,6 @@ def construct_post_response(request):
 
 #link:https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests
 #conditonal headers : https://www.w3.org/1999/04/Editing/#3.1
-#NOTE:PAth is directory for python or conmtent-type is application/loctetstream
 def construct_put_response(request):
     response_headers={"Etag: ":"","Server: ":"http-server/1.2.4 (Ubuntu)","Set-Cookie: ":request.cookie}
     general_headers={"Date: ":"","Connection: ":"","Keep-Alive: ":"","Location: ":""}
@@ -682,8 +674,6 @@ def construct_put_response(request):
 
     if("If-Match: " in request.request_headers.keys() and status_code == '204'):
         if_match = request.request_headers['If-Match: '].split(',')
-        #print(if_match)
-        #print(response_headers['Etag: '])
         if response_headers['Etag: '] in if_match:
             status_code = '204'
         else:
@@ -691,13 +681,12 @@ def construct_put_response(request):
 
     if ("If-Unmodified-Since: " in request.request_headers.keys() and status_code =='204'):
         date1 = request.request_headers['If-Unmodified-Since: ']
-        format1 = '%a, %d %b %Y %H:%M:%S %Z' # The format
+        format1 = '%a, %d %b %Y %H:%M:%S %Z' 
         if_date= datetime.strptime(date1, format1)
         last_date = datetime.strptime(last_modified,format1)
         curr_date =  datetime.strptime(general_headers['Date: '],format1)
         if if_date > curr_date:
             pass
-            #print('Invalid Date in header.Ignore header!')
         elif if_date < last_date:
             status_code = '412'
         else:
@@ -761,7 +750,7 @@ def construct_response(client_request):
         response = construct_put_response(client_request)
     elif (client_request.status_code == '400'):
         logger.access_log(client_request,'400',get_date(),'0')
-        logger.error_log(client_request,get_date(),"Invalid syntax")
+        logger.error_log(client_request,'400','Bad Request',get_date(),"Invalid syntax")
         response = 'HTTP/1.1 400 Bad Reqeust\r\n'
         response += 'Server: HTTP-server/1.2.4(Ubuntu)\r\n'
         today = get_date()
@@ -770,7 +759,7 @@ def construct_response(client_request):
         response = response.encode()
     else:
         logger.access_log(client_request,'501',get_date(),'0')
-        logger.error_log(client_request,get_date(),"Method Not implemented!")
+        logger.error_log(client_request,'501','Not implemented',get_date(),"Method Not implemented!")
         response = 'HTTP/1.1 501 NOT implemented\r\n'
         response += 'Server: HTTP-server/1.2.4(Ubuntu)\r\n'
         today = get_date()

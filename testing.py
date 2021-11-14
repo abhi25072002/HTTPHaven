@@ -9,10 +9,11 @@ from socket import *
 request_url = 'http://127.0.0.1:'+str(port)
 
 def log_response(response):
+    print('-------------------------------------------')
     print('Request_headers: ',response.request.headers)
-    print('Response : Status_code:',response.status_code)
+    print('Response:Status_code: ',response.status_code)
     print('Response_headers: ',response.headers)
-    print('********************************************************')
+    print('--------------------------------------------')
     return
 
 #status_code : 200 + 404
@@ -207,6 +208,7 @@ def HEAD_TEST_CASE_1():
     response = requests.head(request_url+'/index.html',headers = headers_list)
     log_response(response)
     return
+
 #406,412(Accept encoding + conditional headers) 
 def HEAD_TEST_CASE_2():
     headers_list = {'Accept-Encoding':'br'}
@@ -223,6 +225,7 @@ def HEAD_TEST_CASE_2():
     response = requests.head(request_url+'/function.png',headers = headers_list)
     log_response(response)
     return
+
 #200 + 404 + 403 error
 def DELETE_TEST_CASE_1():
     response = requests.delete(request_url+'/delete2.html')
@@ -444,10 +447,11 @@ def multithreading_HEAD_DELETE_TEST_CASE():
     threads.append(th3)
     for i in range(3):
         threads[i].join()
-    print('Get Testing done')
+    print('Head Testing done')
     return
 
-#max requests sent by client
+#max requests sent by client:
+#as in conf file I set 5 request per connection are allowed so when I send 6th request on the same connection it will raise error
 def PERSISTENT_TEST_CASE():
     s = requests.Session()
     headers_list = {'Accept-Encoding':'deflate;q=0.9,br;q=0.6','Range':'bytes=0-300'}
@@ -471,13 +475,11 @@ def PERSISTENT_TEST_CASE():
     except requests.exceptions.ConnectionError:
         print("Max connection Count reached or server is not started yet")
     return
-    #as in conf file I set 5 request per connection are allowed so when I send 6th request on the same connection it will raise error
 
 if KeepAlive == 'Off':
     try:
-        #get_TEST_CASE_1()
+        get_TEST_CASE_1()
         get_TEST_CASE_2()
-        '''
         get_TEST_CASE_3()
         get_TEST_CASE_4()
         get_TEST_CASE_5()
@@ -490,8 +492,6 @@ if KeepAlive == 'Off':
         POST_TEST_CASE_3()
         SYNTAX_SERVER_ERROR_TEST_CASE()
         multithreading_HEAD_DELETE_TEST_CASE()
-
-        '''
     except requests.exceptions.ConnectionError:
         print("Server is not running")
 else:
