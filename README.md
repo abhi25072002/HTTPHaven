@@ -40,3 +40,17 @@ To start the server, use the following command:
 
 ```bash
 bash start.sh
+
+### 2.Stopping the Server
+
+To stop  the server, use the following command:
+
+```bash
+bash start.sh
+
+### 3.Run the testcases
+
+```bash
+python testing.py
+
+
