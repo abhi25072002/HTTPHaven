@@ -1,6 +1,6 @@
 # HTTP Server
 
-![HTTP Server Logo](image123.png)
+![HTTP Server Logo](image.png)
 
 ## Introduction
 This project implements a simple multithreaded HTTP/1.1 compliant web server designed to handle various HTTP requests (GET, POST, PUT, DELETE, etc.), manage cookies, support multipart form data, and handle basic logging and error management. This server was built to explore the inner workings of the HTTP protocol, server design, and request handling, and is based on the HTTP/1.1 RFC 2616.
