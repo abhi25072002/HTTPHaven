@@ -98,18 +98,6 @@ MaxSimultaneousConnection = 5
 PortNumber = 12001
 
 ```
-DOCUMENTROOT: Specifies the root directory for serving static files. This is where the web server will look for files to serve to clients.
-	•	POSTROOT: Defines the directory that handles the data from POST requests. This is the location where uploaded files or data will be stored.
-	•	PUTROOT: Similar to POSTROOT, this specifies the directory for handling PUT requests.
-	•	PIDFILE: This setting stores the Process ID (PID) of the running server. It is used to manage the server process.
-	•	TIMEOUT: The number of seconds the server will wait before closing an inactive connection. This is useful for limiting the duration of idle connections.
-	•	KEEP_ALIVE: Determines if persistent connections should be enabled. Setting this to On allows multiple requests to be sent over a single connection.
-	•	MAX_KEEP_ALIVE_REQUESTS: Limits the number of requests that can be sent over a single persistent connection when KeepAlive is enabled.
-	•	KEEP_ALIVE_TIMEOUT: Specifies how long the server will wait (in seconds) before closing a persistent connection.
-	•	ACCESSLOG: The file path where the server records all incoming HTTP requests. This log file includes details like the request type, client IP, and response status.
-	•	ERRORLOG: The file path where the server logs errors. This can help diagnose issues with the server or requests.
-	•	MAX_SIMULTANEOUS_CONNECTION: Limits the number of simultaneous client connections the server can handle. This is important to prevent overload during heavy traffic.
-	•	PORT_NUMBER: Specifies the port number the server will listen on for incoming requests. The default port is 12001.
 
 
  ## Logs
