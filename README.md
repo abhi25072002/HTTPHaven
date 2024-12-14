@@ -1,6 +1,6 @@
 # HTTP Server
 
-![HTTP Server Logo](path-to-logo)
+![HTTP Server Logo](image123.png)
 
 ## Introduction
 This project implements a simple multithreaded HTTP/1.1 compliant web server designed to handle various HTTP requests (GET, POST, PUT, DELETE, etc.), manage cookies, support multipart form data, and handle basic logging and error management. This server was built to explore the inner workings of the HTTP protocol, server design, and request handling, and is based on the HTTP/1.1 RFC 2616.
@@ -58,7 +58,7 @@ python testing.py
 ```
 
 ## Configuration File 
-The config.ini file contains the server’s configuration settings. Below is the format of the configuration file:
+The config file contains the server’s configuration settings. Below is the format of the configuration file:
 
 ```bash
 [DOCUMENTROOT]
@@ -143,7 +143,7 @@ The server logs errors encountered while processing client requests. Error logs 
 - **Access Log**: `logs/access.log`
 - **Error Log**: `logs/error.log`
 
-These log files are specified in the `config.ini` file and can be customized based on your requirements.
+These log files are specified in the `config` file and can be customized based on your requirements.
 
 
 ## Acknowledgments
